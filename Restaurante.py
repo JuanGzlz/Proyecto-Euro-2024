@@ -1,22 +1,16 @@
 class Restaurante:
 
-    def __init__(self, nombre, productos):
+    def __init__(self, nombre):
         self.nombre = nombre
         self.productos = []
 
     def show(self):
-        return f"""
+        print(f"""
 INFORMACIÓN DEL RESTAURANTE
 ===========================
 NOMBRE: {self.nombre}
-
-PRODUCTOS DISPONIBLES
 ===========================
-NOMBRE: {self.productos}
-PRECIO
-
-#
-#
-#
-#
-"""
+PRODUCTOS: """)
+        for i, producto in enumerate(self.productos):
+            print(f"----------- {i+1} -----------")
+            producto.show()

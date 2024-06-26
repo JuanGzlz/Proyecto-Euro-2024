@@ -4,15 +4,20 @@ from Estadio import Estadio
 from Partido import Partido
 from Producto import Producto
 from Restaurante import Restaurante
+from Entrada import Entrada
+from Vip import Vip
+from General import General
 
 import datetime
 import pickle
-# import matplotlib.pyplot as grafica
+import random
+# import matplotlib.pyplot as graficaa
 
 class App:
     def __init__(self):
         self.estadios = []
         self.partidos = []
+        self.entradas = []
         self.equipos = []
         self.clientes = []
         self.restaurantes = []
@@ -88,7 +93,7 @@ Bienvenido/a a la búsqueda de partidos de la Eurocopa 2024
                     print(partido.show())
             
             elif opcion == "2":
-                eleccion_pais = input("Ingrese un país de la Eurocopa (en inglés): ").lower()
+                eleccion_pais = input("Ingrese el nombre o código FIFA de un país (en inglés): ").lower()
                 contador = 0
                 i = 0
                 for partido in self.partidos:
@@ -157,6 +162,14 @@ Bienvenido/a al registro de su persona para obtener su entrada
             edad = input("Ingrese sus años de edad: ")
 
         cliente = Cliente(nombre_completo, dni, edad)
+        cliente.discount()
+
+    def compra_entrada(self):
+        ans = ("¿Se encuentra registrado? [s/n]: ")
+        while ans not in ["s", "n"]:
+            print("Ingreso inválido...")
+            ans = ("¿Se encuentra registrado? [s/n]: ")
+
 
     def menu(self, teams, stadiums, matches):
         self.register_data(teams, stadiums, matches)

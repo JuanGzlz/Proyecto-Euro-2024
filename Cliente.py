@@ -70,6 +70,11 @@ Usted ha obtenido el beneficio de un 50% de descuento en la compra de entradas
 Usted ha obtenido el beneficio de un 15% de descuento en la compra de productos
 """)
 
+    # def entradas_compradas():
+    #     vip_entradas = 0
+    #     general_entradas = 0
+    #     for entrada in self.entradas:
+
 
     """Mostrar los datos completos del cliente"""
     def show(self):
