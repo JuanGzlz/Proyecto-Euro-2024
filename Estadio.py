@@ -5,7 +5,7 @@ class Estadio:
         self.nombre = nombre
         self.ciudad = ciudad
         self.capacidad = capacidad
-        self.restaurantes = []
+        self.restaurantes = restaurantes
 
     """Mostrar los datos completos del estadio"""
 
