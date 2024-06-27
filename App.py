@@ -11,7 +11,8 @@ from General import General
 import datetime
 import pickle
 import random
-# import matplotlib.pyplot as graficaa
+import matplotlib.pyplot as grafica
+import numpy as np
 
 class App:
     def __init__(self):
