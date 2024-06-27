@@ -83,7 +83,6 @@ INFORMACIÓN DEL CLIENTE
 =======================
 NOMBRE: {self.nombre}
 CÉDULA: {self.cedula}
-EDAD: {self.edad}
-PARTIDO QUE DESEA IR: {self.partido}
-TIPO DE ENTRADA: {self.entrada}
-"""
+EDAD: {self.edad} """
+# PARTIDO QUE DESEA IR: {self.partido}
+# TIPO DE ENTRADA: {self.entrada}

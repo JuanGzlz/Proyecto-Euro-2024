@@ -119,7 +119,7 @@ Bienvenido/a a la búsqueda de partidos de la Eurocopa 2024
                     print("El estadio ingresado no fue conseguido")
             
             elif opcion == "4":
-                eleccion_fecha = input("Ingrese la fecha que desea ver un partido de la Eurocopa (AAAA-DD-MM): ")
+                eleccion_fecha = input("Ingrese la fecha que desea ver un partido (AAAA-MM-DD): ")
                 contador = 0
                 i = 0
                 for partido in self.partidos:
@@ -134,7 +134,7 @@ Bienvenido/a a la búsqueda de partidos de la Eurocopa 2024
             else:
                 break
 
-    def inicio_sesion(self):
+    def registro_cliente(self):
         print(f"""
 Bienvenido/a al registro de su persona para obtener su entrada
 """)
@@ -151,24 +151,42 @@ Bienvenido/a al registro de su persona para obtener su entrada
 
         nombre_completo = nombre + " " + apellido
 
-        dni = input("Ingrese su DNI: ")
+        dni = input("Ingrese su cédula/DNI: ")
         while len(dni) == 0 or not dni.isnumeric():
             print("Ingreso inválido...")
-            dni = input("Ingrese su DNI: ")
+            dni = input("Ingrese su cédula/DNI: ")
 
         edad = input("Ingrese sus años de edad: ")
         while edad <= 0 or edad > 100 or not edad.isnumeric():
             print("Ingreso inválido...")
             edad = input("Ingrese sus años de edad: ")
 
+        print("¡El cliente ha sido registrado exitosamente!")
         cliente = Cliente(nombre_completo, dni, edad)
-        cliente.discount()
+        self.clientes.append(cliente)
+        cliente.descuentos()
 
     def compra_entrada(self):
-        ans = ("¿Se encuentra registrado? [s/n]: ")
+        ans = input("¿Se encuentra registrado? [s/n]: ")
         while ans not in ["s", "n"]:
             print("Ingreso inválido...")
             ans = ("¿Se encuentra registrado? [s/n]: ")
+        
+        if ans == "s":
+            dni = input("Ingrese su cédula/DNI: ")
+            while len(dni) == 0 or not dni.isnumeric():
+                print("Ingreso inválido...")
+                dni = input("Ingrese su cédula/DNI: ")
+            
+            for cliente in self.clientes:
+                if dni == cliente.dni:
+                    print("¡El cliente no se encuentra registrado!")
+                    self.compra_entrada()
+
+        else:
+            self.registro_cliente()
+
+
 
 
     def menu(self, teams, stadiums, matches):
@@ -194,7 +212,7 @@ Bienvenido/a al registro de su persona para obtener su entrada
             if opcion == "1":
                 self.busqueda_partidos()
             elif opcion == "2":
-                pass
+                self.compra_entrada()
             elif opcion == "3":
                 pass
             elif opcion == "4":
