@@ -136,7 +136,7 @@ Bienvenido/a a la búsqueda de partidos de la Eurocopa 2024
 
     def registro_cliente(self):
         print(f"""
-Bienvenido/a al registro de su persona para obtener su entrada
+Bienvenido/a al registro OFICIAL de su persona en el sistema de la Eurocopa 2024...
 """)
         
         nombre = input("Ingrese su primer nombre: ").capitalize()
@@ -163,14 +163,16 @@ Bienvenido/a al registro de su persona para obtener su entrada
 
         print("¡El cliente ha sido registrado exitosamente!")
         cliente = Cliente(nombre_completo, dni, edad)
-        self.clientes.append(cliente)
         cliente.descuentos()
+    
+        return cliente
 
     def compra_entrada(self):
-        ans = input("¿Se encuentra registrado? [s/n]: ")
+        ans = input("""
+¿Se encuentra registrado? [s/n]: """)
         while ans not in ["s", "n"]:
             print("Ingreso inválido...")
-            ans = ("¿Se encuentra registrado? [s/n]: ")
+            ans = input("¿Se encuentra registrado? [s/n]: ")
         
         if ans == "s":
             dni = input("Ingrese su cédula/DNI: ")
@@ -178,16 +180,32 @@ Bienvenido/a al registro de su persona para obtener su entrada
                 print("Ingreso inválido...")
                 dni = input("Ingrese su cédula/DNI: ")
             
-            for cliente in self.clientes:
-                if dni == cliente.dni:
-                    print("¡El cliente no se encuentra registrado!")
-                    self.compra_entrada()
-
+            if self.binary_search(self.clientes, 0, len(self.clientes) - 1, dni, lambda x: x.dni) == -1:
+                print("¡El cliente no se encuentra registrado! Su DNI no se encontró.")
+                self.compra_entrada()
+            
+            ind = self.binary_search(self.clientes, 0, len(self.clientes) - 1, dni, lambda x: x.dni)
+            cliente = self.clientes[ind]
+            
         else:
-            self.registro_cliente()
+            cliente = self.registro_cliente()
 
+        if cliente.descuento_entrada():
+            print("¡Por su DNI, ha sido beneficiado con un 50% de descuento en la compra de entradas!")
 
+        
 
+    def binary_search(self, list, min, max, x, key = lambda x: x):
+        if len(list) != 0:
+            mid = len(list) // 2
+            if key(list[mid]) == x:
+                return mid
+            elif key(list[mid]) > x:
+                return self.binary_search(list, min, mid - 1, x, key)
+            elif key(list[mid]) < x:
+                return self.binary_search(list, min + 1, max, x, key)
+        else:
+            return -1
 
     def menu(self, teams, stadiums, matches):
         self.register_data(teams, stadiums, matches)
