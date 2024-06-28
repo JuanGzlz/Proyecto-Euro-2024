@@ -20,10 +20,13 @@ class App:
         self.partidos = []
         self.entradas = []
         self.tipo_entradas = {"General": [], "Vip": []}
+        self.entradas_usadas = []
         self.equipos = []
         self.clientes = []
         self.restaurantes = []
         self.productos = []
+        self.bebidas = []
+        self.comidas = []
 
     """Función para registrar los datos del .json a objetos"""
     def register_data(self, teams, stadiums, matches):
@@ -42,9 +45,10 @@ class App:
                 lista_productos = []
                 for producto in restaurante["products"]:
                     precio_float = float(producto["price"])
-                    producto = Producto(producto["name"], producto["quantity"], precio_float, producto["stock"], producto["adicional"], )
+                    producto = Producto(producto["name"], producto["quantity"], precio_float, producto["stock"], producto["adicional"])
                     self.productos.append(producto)
                     lista_productos.append(producto)
+                    
                 restaurante = Restaurante(restaurante["name"], lista_productos)
                 self.restaurantes.append(restaurante)
                 lista_restaurantes.append(restaurante)
@@ -52,6 +56,13 @@ class App:
             """Crear el objeto Estadio y asignar sus atributos"""
             estadio = Estadio(estadio["id"], estadio["name"], estadio["city"], estadio["capacity"], lista_restaurantes)
             self.estadios.append(estadio)
+
+        """Clasificar los productos en Bebidas y Comidas"""
+        for producto1 in self.productos:
+            if producto1.adicional == "alcoholic" or producto1.adicional == "non-alcoholic":
+                self.bebidas.append(producto1)
+            else:
+                self.comidas.append(producto1)
 
         """Registrar los datos del partido en el sistema"""
         for partido in matches:
@@ -243,15 +254,34 @@ PARTIDO SELECCIONADO: {partidos_disponibles[opcion - 1].local.nombre} VS. {parti
             print(fila1)
         print("-" * len(mapa_estadio[-1]))
 
-        asiento_elegido = input("Ingrese el asiento desde donde desee ver el partido (Ej: AA1): ")
+        asiento_elegido = input("Ingrese el asiento desde donde desee ver el partido (Ej: AA1): ").upper().strip()
         while asiento_elegido not in asientos_disponibles:
             print("El asiento ingresado NO existe o está OCUPADO...")
-            asiento_elegido = input("Ingrese el asiento desde donde desee ver el partido (Ej: AA1): ")
+            asiento_elegido = input("Ingrese el asiento desde donde desee ver el partido (Ej: AA1): ").upper().strip()
 
         print(f"""
 ASIENTO SELECCIONADO: {asiento_elegido}
 """)
         return asiento_elegido
+
+    def crear_entrada(self, cliente, juego_selec, tipo_entrada):
+        asiento_selec = self.mapa_disponibilidad(juego_selec)
+
+        id_entradas = self.tipo_entradas["General"] + self.tipo_entradas["Vip"]
+        while True:
+            entrada_id = random.randint(100000000, 9999999999)
+            if entrada_id not in id_entradas:
+                break
+
+        if tipo_entrada == "General":
+            entrada = General(entrada_id, juego_selec, juego_selec.estadio, asiento_selec)
+            entrada.descuento = cliente.descuento_entrada
+            return entrada
+        
+        if tipo_entrada == "Vip":
+            entrada = Vip(entrada_id, juego_selec, juego_selec.estadio, asiento_selec)
+            entrada.descuento = cliente.descuento_entrada
+            return entrada
 
     def compra_entrada(self):
         ans = input("""
@@ -283,9 +313,8 @@ ASIENTO SELECCIONADO: {asiento_elegido}
         
         juego_selec = self.seleccion_partido(partidos_disponibles)
 
-
-#         if cliente.descuento_entrada():
-#             print("¡Por su DNI, ha sido beneficiado con un 50% de descuento en la compra de entradas!")
+        if cliente.descuento_entrada():
+            print("¡Por su DNI, ha sido beneficiado con un 50(%) de descuento en la compra de entradas!")
 
 #         print("""
 # ENTRADAS DISPONIBLES
@@ -311,7 +340,8 @@ ASIENTO SELECCIONADO: {asiento_elegido}
 --- BIENVENIDO/A A LA EUROCOPA 2024 ---
 """)
         while True:
-            print("""Ingrese una opción...
+            print("""MENÚ PRINCIPAL:
+Ingrese una opción...
         1. Búsqueda de partidos
         2. Compra de entradas
         3. Confirmación de asistencia
@@ -335,5 +365,23 @@ ASIENTO SELECCIONADO: {asiento_elegido}
                 pass
             elif opcion == "5":
                 pass
-            elif opcion == "6":
-                pass
+            else:
+                print("""
+Cerrando sesión...
+Vuelva por más novedades del torneo internacional más competitivo...
+¡LA EUROCOPA 2024!
+""")
+                break
+
+            ans = input("¿Desea continuar? [s/n]: ")
+            while ans not in ["s", "n"]:
+                print("Ingreso inválido")
+                ans = input("¿Desea continuar? [s/n]: ")
+
+            if ans == "n":
+                print("""
+Cerrando sesión...
+Vuelva por más novedades del torneo internacional más competitivo...
+¡LA EUROCOPA 2024!
+""")
+                break

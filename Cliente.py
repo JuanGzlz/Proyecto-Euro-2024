@@ -69,12 +69,12 @@ class Cliente:
         if self.num_vampiro():
             self.descuento_entrada = True
             print("""
-Usted ha obtenido el beneficio de un 50% de descuento en la compra de entradas
+Usted ha obtenido el beneficio de un 50(%) de descuento en la compra de entradas
 """)
         if self.num_perfecto():
             self.descuento_rest = True
             print("""
-Usted ha obtenido el beneficio de un 15% de descuento en la compra de productos
+Usted ha obtenido el beneficio de un 15(%) de descuento en la compra de productos
 """)
 
     def gasto_entradas(self):
