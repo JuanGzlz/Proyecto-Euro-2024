@@ -3,7 +3,7 @@ class Producto:
     def __init__(self, nombre, ventas, precio, stock, adicional):
         self.nombre = nombre
         self.ventas = ventas
-        self.precio = precio # * 1.16
+        self.precio = precio * 1.16
         self.stock = stock
         self.adicional = adicional
         self.cantidad_gastada = 0
@@ -12,8 +12,8 @@ class Producto:
         self.stock -= cantidad
         self.ventas += cantidad
 
-    # def dinero_gastado(self):
-    #     self.cantidad_gastada = self.ventas * self.precio
+    def dinero_gastado(self):
+        self.cantidad_gastada = self.ventas * self.precio
 
     def show(self):
         return f"""
@@ -24,4 +24,5 @@ CONTENIDO: {self.adicional}
 PRECIO: {self.precio}
 CANTIDAD RESTANTE: {self.stock}
 CANTIDAD VENDIDA: {self.ventas}
+CAPITAL RECOGIDO: {self.cantidad_gastada}
 """

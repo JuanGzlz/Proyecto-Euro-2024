@@ -1,5 +1,6 @@
 from General import General
 from Vip import Vip
+from Entrada import Entrada
 
 class Cliente:
 
@@ -9,6 +10,12 @@ class Cliente:
         self.edad = edad
         self.descuento_entrada = False
         self.descuento_rest = False
+        self.cant_entradageneral = 0
+        self.cant_entradavip = 0
+        self.cant_entradas = 0
+        self.cant_productos = 0
+        self.productos_comprados = []
+        self.entradas_compradas = []
 
     """Determinar si la cédula es un número vampiro para reconocer el descuento, debiendo aplicar permutaciones"""
     def permutacion(self, cedula):
@@ -70,19 +77,52 @@ Usted ha obtenido el beneficio de un 50% de descuento en la compra de entradas
 Usted ha obtenido el beneficio de un 15% de descuento en la compra de productos
 """)
 
-    # def entradas_compradas():
-    #     vip_entradas = 0
-    #     general_entradas = 0
-    #     for entrada in self.entradas:
+    def gasto_entradas(self):
+        vip_entradas = 0
+        general_entradas = 0
+        for entrada in self.entradas_compradas:
+            if isinstance(entrada, General):
+                general_entradas += entrada.total
+            else:
+                vip_entradas += entrada.total
+        self.cant_entradageneral = general_entradas
+        self.cant_entradavip = vip_entradas
+        self.cant_entradas = general_entradas + vip_entradas
 
+    def gasto_productos(self):
+        producto_gasto = 0
+        for producto in self.productos_comprados:
+            producto_gasto += producto.price
+        self.cant_productos = producto_gasto
+        if self.descuento_rest:
+            self.cant_productos *= 0.85
 
     """Mostrar los datos completos del cliente"""
     def show(self):
-        return f"""
+        print(f"""
 INFORMACIÓN DEL CLIENTE
 =======================
 NOMBRE: {self.nombre}
 CÉDULA: {self.cedula}
-EDAD: {self.edad} """
-# PARTIDO QUE DESEA IR: {self.partido}
-# TIPO DE ENTRADA: {self.entrada}
+EDAD: {self.edad}
+DESCUENTO EN ENTRADAS (50%): {self.descuento_entrada}
+DESCUENTO EN RESTAURANTES (15%): {self.descuento_rest}
+=======================
+ENTRADAS COMPRADAS: """)
+        for i, entrada in enumerate(self.entradas_compradas):
+            print(f"----------- {i+1} -----------")
+            entrada.show()
+        print(f"GASTO EN ENTRADAS: {self.cant_entradas}$")
+
+        if len(self.productos_comprados) > 0:
+            print("""=======================
+PRODUCTOS COMPRADOS: """)
+            for i, producto in enumerate(self.productos_comprados):
+                print(f"----------- {i+1} -----------")
+                entrada.show()
+            print(f"GASTO EN PRODUCTOS: {self.cant_productos}$")
+        else:
+            print("Ningún producto ha sido comprado...")
+        print(f"""///////////////////////
+MONTO TOTAL GASTADO: {self.cant_entradas + self.cant_productos}$
+""")

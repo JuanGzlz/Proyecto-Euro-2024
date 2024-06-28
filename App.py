@@ -19,6 +19,7 @@ class App:
         self.estadios = []
         self.partidos = []
         self.entradas = []
+        self.tipo_entradas = {"General": [], "Vip": []}
         self.equipos = []
         self.clientes = []
         self.restaurantes = []
@@ -40,7 +41,8 @@ class App:
             for restaurante in estadio["restaurants"]:
                 lista_productos = []
                 for producto in restaurante["products"]:
-                    producto = Producto(producto["name"], producto["quantity"], producto["price"], producto["stock"], producto["adicional"], )
+                    precio_float = float(producto["price"])
+                    producto = Producto(producto["name"], producto["quantity"], precio_float, producto["stock"], producto["adicional"], )
                     self.productos.append(producto)
                     lista_productos.append(producto)
                 restaurante = Restaurante(restaurante["name"], lista_productos)
@@ -87,17 +89,21 @@ Bienvenido/a a la búsqueda de partidos de la Eurocopa 2024
                 opcion = input("Ingrese el número de la opción que desea elegir: ")
 
             if opcion == "1":
-                for i, partido in enumerate(self.partidos):
-                    print(f"------------- {i+1} -------------")
+                i = 0
+                for partido in self.partidos:
+                    i += 1
+                    print(f"------------- {i} -------------")
                     print(partido.show())
             
             elif opcion == "2":
                 eleccion_pais = input("Ingrese el nombre o código FIFA de un país (en inglés): ").lower()
                 contador = 0
-                for i, partido in enumerate(self.partidos):
+                i = 0
+                for partido in self.partidos:
                     if eleccion_pais in partido.local.nombre.lower() or eleccion_pais in partido.visitante.nombre.lower():
                         contador = 1
-                        print(f"------------- {i+1} -------------")
+                        i += 1
+                        print(f"------------- {i} -------------")
                         print(partido.show())
                 if contador == 0:
                     print("El país ingresado no fue conseguido")
@@ -105,10 +111,12 @@ Bienvenido/a a la búsqueda de partidos de la Eurocopa 2024
             elif opcion == "3":
                 eleccion_estadio = input("Ingrese un estadio de la Eurocopa: ").lower()
                 contador = 0
-                for i, partido in enumerate(self.partidos):
+                i = 0
+                for partido in self.partidos:
                     if eleccion_estadio in partido.id_estadio.nombre.lower():
                         contador = 1
-                        print(f"------------- {i+1} -------------")
+                        i += 1
+                        print(f"------------- {i} -------------")
                         print(partido.show())
                 if contador == 0:
                     print("El estadio ingresado no fue conseguido")
@@ -116,10 +124,12 @@ Bienvenido/a a la búsqueda de partidos de la Eurocopa 2024
             elif opcion == "4":
                 eleccion_fecha = input("Ingrese la fecha que desea ver un partido (AAAA-MM-DD): ")
                 contador = 0
-                for i, partido in enumerate(self.partidos):
+                i = 0
+                for partido in self.partidos:
                     if eleccion_fecha in partido.fecha:
                         contador = 1
-                        print(f"------------- {i+1} -------------")
+                        i += 1
+                        print(f"------------- {i} -------------")
                         print(partido.show())
                 if contador == 0:
                     print("No hay partidos en la fecha ingresada")
@@ -236,6 +246,7 @@ PARTIDO SELECCIONADO: {partidos_disponibles[opcion - 1].local.nombre} VS. {parti
         asiento_elegido = input("Ingrese el asiento desde donde desee ver el partido (Ej: AA1): ")
         while asiento_elegido not in asientos_disponibles:
             print("El asiento ingresado NO existe o está OCUPADO...")
+            asiento_elegido = input("Ingrese el asiento desde donde desee ver el partido (Ej: AA1): ")
 
         print(f"""
 ASIENTO SELECCIONADO: {asiento_elegido}
@@ -273,13 +284,13 @@ ASIENTO SELECCIONADO: {asiento_elegido}
         juego_selec = self.seleccion_partido(partidos_disponibles)
 
 
-        # if cliente.descuento_entrada():
-        #     print("¡Por su DNI, ha sido beneficiado con un 50% de descuento en la compra de entradas!")
+#         if cliente.descuento_entrada():
+#             print("¡Por su DNI, ha sido beneficiado con un 50% de descuento en la compra de entradas!")
 
-        print("""
-ENTRADAS DISPONIBLES
---------------------
-""")
+#         print("""
+# ENTRADAS DISPONIBLES
+# --------------------
+# """)
 
 
     def binary_search(self, list, min, max, x, key = lambda x: x):
