@@ -196,16 +196,18 @@ PARTIDOS DISPONIBLES:
             print(f"""
 ------------- {i+1} -------------""")
             print(partido.show())
-            print(f"""/////////////////////////////////
-""")
 
-        opcion = input("Ingrese el número del partido que desea ver: ")
+        opcion = input("""
+////////////////////////////////      
+Ingrese el número colocado encima de la información del partido que desea ver: """)
         while not opcion.isnumeric() or int(opcion) not in range(1, len(partidos_disponibles) + 1):
             print("Ingreso inválido...")
-            opcion = input("Ingrese el número del partido que desea ver: ")
+            opcion = input("""
+////////////////////////////////      
+Ingrese el número colocado encima de la información del partido que desea ver: """)
         
-        print(f"""
-PARTIDO SELECCIONADO: {partidos_disponibles[int(opcion) - 1].local.nombre} VS. {partidos_disponibles[int(opcion) - 1].visitante.nombre}
+        print(f"""PARTIDO SELECCIONADO: {partidos_disponibles[int(opcion) - 1].local.nombre} VS. {partidos_disponibles[int(opcion) - 1].visitante.nombre}
+////////////////////////////////
 """)
         return partidos_disponibles[int(opcion) - 1]
 
@@ -243,7 +245,11 @@ PARTIDO SELECCIONADO: {partidos_disponibles[int(opcion) - 1].local.nombre} VS. {
         
         seccion_actual = None
         for fila1 in mapa_estadio:
-            seccion = fila1.split("|")[1].strip()[0]
+            asientos_fila = [asiento.strip() for asiento in fila1.split("|") if asiento.strip() and asiento.strip() != "X"]
+            if asientos_fila:
+                seccion = asientos_fila[0][0]
+            else:
+                seccion = seccion_actual
             if seccion != seccion_actual:
                 seccion_actual = seccion
                 if seccion_actual != "A":
@@ -257,25 +263,28 @@ PARTIDO SELECCIONADO: {partidos_disponibles[int(opcion) - 1].local.nombre} VS. {
         print("-" * len(mapa_estadio[-1]))
 
         asiento_elegido = input("""
+////////////////////////////////
 Ingrese el asiento desde donde desee ver el partido (Ej: AA1): """).upper().strip()
         while asiento_elegido not in asientos_disponibles:
             print("El asiento ingresado NO existe o está OCUPADO...")
             asiento_elegido = input("""
+////////////////////////////////
 Ingrese el asiento desde donde desee ver el partido (Ej: AA1): """).upper().strip()
 
-        print(f"""
-ASIENTO SELECCIONADO: {asiento_elegido}
+        print(f"""ASIENTO SELECCIONADO: {asiento_elegido}
+////////////////////////////////
 """)
         return asiento_elegido
 
     def crear_entrada(self, cliente, juego_selec, tipo_entrada):
-        asiento_selec = self.mapa_disponibilidad(juego_selec)
 
         id_entradas = self.tipo_entradas["General"] + self.tipo_entradas["Vip"]
         while True:
             entrada_id = random.randint(100000000, 9999999999)
             if entrada_id not in id_entradas:
                 break
+        
+        asiento_selec = self.mapa_disponibilidad(juego_selec)
 
         if tipo_entrada == "General":
             entrada = General(entrada_id, juego_selec, juego_selec.estadio, asiento_selec)
@@ -318,11 +327,11 @@ ASIENTO SELECCIONADO: {asiento_elegido}
         juego_selec = self.seleccion_partido(partidos_disponibles)
 
         if cliente.descuento_entrada:
-            print("¡Por su DNI, ha sido beneficiado con un 50(%) de descuento en la compra de entradas!")
+            print("""¡Por su DNI, ha sido beneficiado con un 50(%) de descuento en la compra de entradas!
+""")
 
 
-        print("""
-ENTRADAS DISPONIBLES:
+        print("""ENTRADAS DISPONIBLES:
 ---------------------""")
         if juego_selec.entradas_general > 0 and juego_selec.entradas_vip > 0:
             print("""¡Todavía quedan ambos tipos de entrada! Seleccione uno...
@@ -348,9 +357,79 @@ ENTRADAS DISPONIBLES:
             while True:
                 entrada = self.crear_entrada(cliente, juego_selec, "General")
                 entrada.precio_real()
-                entrada.show()
-        elif opcion == "2":
-            pass
+                print(entrada.show())
+
+                opcion1 = input("""
+¿Quiere confirmar su compra? [s/n]: """)
+                while opcion1 not in ["s", "n"]:
+                    print("Ingreso inválido...")
+                    opcion1 = input("""
+¿Quiere confirmar su compra? [s/n]: """)
+                    
+                if opcion1 == "s":
+                    cliente.entradas_compradas.append(entrada)
+                    self.entradas.append(entrada)
+                    juego_selec.asientos_tomados.append(entrada.asiento)
+                    self.tipo_entradas["General"].append(entrada.id)
+                    juego_selec.entradas_general -= 1
+                    print("¡Su compra ha sido EXITOSA!")
+                else:
+                    print("Compra cancelada...")
+                    break
+                
+                if juego_selec.entradas_general == 0:
+                    print("NO quedan entradas de tipo General...")
+                    break
+
+                opcion2 = input("""
+¿Desearía comprar una entrada más? [s/n]: """)
+                while opcion2 not in ["s", "n"]:
+                    print("Ingreso inválido...")
+                    opcion2 = input("""
+¿Desearía comprar una entrada más? [s/n]: """)
+                    
+                if opcion2 == "n":
+                    print("¡Gracias por haber comprado en EUROCOPA 2024!")
+                    break
+
+        else:
+            while True:
+                entrada = self.crear_entrada(cliente, juego_selec, "Vip")
+                entrada.precio_real()
+                print(entrada.show())
+
+                opcion1 = input("""
+¿Quiere confirmar su compra? [s/n]: """)
+                while opcion1 not in ["s", "n"]:
+                    print("Ingreso inválido...")
+                    opcion1 = input("""
+¿Quiere confirmar su compra? [s/n]: """)
+                    
+                if opcion1 == "s":
+                    cliente.entradas_compradas.append(entrada)
+                    self.entradas.append(entrada)
+                    juego_selec.asientos_tomados.append(entrada.asiento)
+                    self.tipo_entradas["Vip"].append(entrada.id)
+                    juego_selec.entradas_vip -= 1
+                    print("¡Su compra ha sido EXITOSA!")
+                else:
+                    print("Compra cancelada...")
+                    break
+                
+                if juego_selec.entradas_vip == 0:
+                    print("NO quedan entradas de tipo VIP...")
+                    break
+
+                opcion2 = input("""
+¿Desearía comprar una entrada más? [s/n]: """)
+                while opcion2 not in ["s", "n"]:
+                    print("Ingreso inválido...")
+                    opcion2 = input("""
+¿Desearía comprar una entrada más? [s/n]: """)
+                    
+                if opcion2 == "n":
+                    print("¡Gracias por haber comprado en EUROCOPA 2024!")
+                    break
 
     def binary_search(self, list, min, max, x, key = lambda x: x):
         if len(list) != 0:

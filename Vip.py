@@ -16,5 +16,4 @@ class Vip(Entrada):
         return f"""
 INFO. ENTRADA V.I.P
 ====================
-{super().show()}
-"""
+{super().show()}"""

@@ -16,5 +16,4 @@ class General(Entrada):
         return f"""
 INFO. ENTRADA GENERAL
 =====================
-{super().show()}
-"""
+{super().show()}"""

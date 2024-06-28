@@ -16,24 +16,24 @@ class Entrada:
             return f"""
 ENTRADA ID: {self.id}
 PARTIDO: {self.partido.local.nombre} VS. {self.partido.visitante.nombre}
-ESTADIO: {self.estadio}
+ESTADIO: {self.estadio.nombre}
 ASIENTO: {self.asiento}
 DESCUENTO DEL 50%: {self.descuento}
 -------------------------
 SUBTOTAL: {self.subtotal}$
 DESCUENTO: {self.cantidad_descuento}$
-IMPUESTOS (16%): {self.impuestos}$
+IMPUESTOS (16%): {self.subtotal * self.impuestos}$
 TOTAL: {self.total}$ 
 """
         else:
             return f"""
 ENTRADA ID: {self.id}
 PARTIDO: {self.partido.local.nombre} VS. {self.partido.visitante.nombre}
-ESTADIO: {self.estadio}
+ESTADIO: {self.estadio.nombre}
 ASIENTO: {self.asiento}
 DESCUENTO DEL 50%: {self.descuento} 
 -------------------------
 SUBTOTAL: {self.subtotal}$
-IMPUESTOS (16%): {self.impuestos}$ 
+IMPUESTOS (16%): {self.subtotal * self.impuestos}$ 
 TOTAL: {self.total}$ 
 """
