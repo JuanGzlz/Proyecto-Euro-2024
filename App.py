@@ -44,8 +44,7 @@ class App:
             for restaurante in estadio["restaurants"]:
                 lista_productos = []
                 for producto in restaurante["products"]:
-                    precio_float = float(producto["price"])
-                    producto = Producto(producto["name"], producto["quantity"], precio_float, producto["stock"], producto["adicional"])
+                    producto = Producto(producto["name"], producto["quantity"], producto["price"], producto["stock"], producto["adicional"])
                     self.productos.append(producto)
                     lista_productos.append(producto)
                     
@@ -189,23 +188,26 @@ Bienvenido/a al registro OFICIAL de su persona en el sistema de la Eurocopa 2024
         return cliente
 
     def seleccion_partido(self, partidos_disponibles):
-        print("""
-PARTIDOS DISPONIBLES
+        print("""Bienvenido/a a la selección del partido que desea ver de la Eurocopa 2024...
+
+PARTIDOS DISPONIBLES:
 """)
         for i, partido in enumerate(partidos_disponibles):
-            print(f"------------- {i+1} -------------")
+            print(f"""
+------------- {i+1} -------------""")
             print(partido.show())
-            print(f"/////////////////////////////////")
+            print(f"""/////////////////////////////////
+""")
 
-        opcion = input("Ingrese el número de la opción que desea elegir: ")
-        while not opcion.isnumeric() or int(opcion) not in range(1, len(partidos_disponibles)):
+        opcion = input("Ingrese el número del partido que desea ver: ")
+        while not opcion.isnumeric() or int(opcion) not in range(1, len(partidos_disponibles) + 1):
             print("Ingreso inválido...")
-            opcion = input("Ingrese el número de la opción que desea elegir: ")
+            opcion = input("Ingrese el número del partido que desea ver: ")
         
         print(f"""
-PARTIDO SELECCIONADO: {partidos_disponibles[opcion - 1].local.nombre} VS. {partidos_disponibles[opcion - 1].visitante.nombre}
+PARTIDO SELECCIONADO: {partidos_disponibles[int(opcion) - 1].local.nombre} VS. {partidos_disponibles[int(opcion) - 1].visitante.nombre}
 """)
-        return partidos_disponibles[opcion - 1]
+        return partidos_disponibles[int(opcion) - 1]
 
     def mapa_disponibilidad(self, juego_selec):
         mapa_estadio = []
@@ -254,10 +256,12 @@ PARTIDO SELECCIONADO: {partidos_disponibles[opcion - 1].local.nombre} VS. {parti
             print(fila1)
         print("-" * len(mapa_estadio[-1]))
 
-        asiento_elegido = input("Ingrese el asiento desde donde desee ver el partido (Ej: AA1): ").upper().strip()
+        asiento_elegido = input("""
+Ingrese el asiento desde donde desee ver el partido (Ej: AA1): """).upper().strip()
         while asiento_elegido not in asientos_disponibles:
             print("El asiento ingresado NO existe o está OCUPADO...")
-            asiento_elegido = input("Ingrese el asiento desde donde desee ver el partido (Ej: AA1): ").upper().strip()
+            asiento_elegido = input("""
+Ingrese el asiento desde donde desee ver el partido (Ej: AA1): """).upper().strip()
 
         print(f"""
 ASIENTO SELECCIONADO: {asiento_elegido}
@@ -313,14 +317,40 @@ ASIENTO SELECCIONADO: {asiento_elegido}
         
         juego_selec = self.seleccion_partido(partidos_disponibles)
 
-        if cliente.descuento_entrada():
+        if cliente.descuento_entrada:
             print("¡Por su DNI, ha sido beneficiado con un 50(%) de descuento en la compra de entradas!")
 
-#         print("""
-# ENTRADAS DISPONIBLES
-# --------------------
-# """)
 
+        print("""
+ENTRADAS DISPONIBLES:
+---------------------""")
+        if juego_selec.entradas_general > 0 and juego_selec.entradas_vip > 0:
+            print("""¡Todavía quedan ambos tipos de entrada! Seleccione uno...
+        1. Entradas General (35$)
+        2. Entradas VIP (75$)
+""")
+            opcion = input("Ingrese el número de opción de la entrada que desea comprar: ")
+            while not opcion.isnumeric() or int(opcion) not in range(1,3):
+                print("Ingreso inválido...")
+                opcion = input("Ingrese el número de opción de la entrada que desea comprar: ")
+        
+        elif juego_selec.entradas_general > 0:
+            print("""¡Sólo quedan entradas de tipo General!
+""")
+            opcion = "1"
+        
+        elif juego_selec.entradas_vip > 0:
+            print("""¡Sólo quedan entradas de tipo VIP!
+""")
+            opcion = "2"
+
+        if opcion == "1":
+            while True:
+                entrada = self.crear_entrada(cliente, juego_selec, "General")
+                entrada.precio_real()
+                entrada.show()
+        elif opcion == "2":
+            pass
 
     def binary_search(self, list, min, max, x, key = lambda x: x):
         if len(list) != 0:

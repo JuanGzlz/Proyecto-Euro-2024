@@ -14,8 +14,6 @@ class Entrada:
     def show(self):
         if self.descuento:
             return f"""
-INFORMACIÓN DE LA ENTRADA
-=========================
 ENTRADA ID: {self.id}
 PARTIDO: {self.partido.local.nombre} VS. {self.partido.visitante.nombre}
 ESTADIO: {self.estadio}
@@ -29,8 +27,6 @@ TOTAL: {self.total}$
 """
         else:
             return f"""
-INFORMACIÓN DE LA ENTRADA
-=========================
 ENTRADA ID: {self.id}
 PARTIDO: {self.partido.local.nombre} VS. {self.partido.visitante.nombre}
 ESTADIO: {self.estadio}

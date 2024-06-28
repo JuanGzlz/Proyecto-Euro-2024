@@ -3,8 +3,8 @@ class Producto:
     def __init__(self, nombre, ventas, precio, stock, adicional):
         self.nombre = nombre
         self.ventas = ventas
-        self.precio = precio * 1.16
-        self.stock = stock
+        self.precio = float(precio) * 1.16
+        self.stock = int(stock)
         self.adicional = adicional
         self.cantidad_gastada = 0
 
