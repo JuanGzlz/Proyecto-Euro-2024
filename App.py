@@ -28,6 +28,18 @@ class App:
         self.bebidas = []
         self.comidas = []
 
+    def binary_search(self, lista_arg, min, max, x, key = lambda x: x):
+        if max >= min:
+            mid = (max + min) // 2
+            if key(lista_arg[mid]) == x:
+                return mid
+            elif key(lista_arg[mid]) > x:
+                return self.binary_search(lista_arg, min, mid - 1, x, key)
+            else:
+                return self.binary_search(lista_arg, mid + 1, max, x, key)
+        else:
+            return -1
+
     """Función para registrar los datos del .json a objetos"""
     def register_data(self, teams, stadiums, matches):
 
@@ -195,7 +207,12 @@ Bienvenido/a al registro OFICIAL de su persona en el sistema de la Eurocopa 2024
     
         return cliente
 
-    def seleccion_partido(self, partidos_disponibles):
+    def seleccion_partido(self):
+        partidos_disponibles = []
+        for partido in self.partidos:
+            if partido.entradas_general > 0 or partido.entradas_vip > 0:
+                partidos_disponibles.append(partido)
+
         print("""Bienvenido/a a la selección del partido que desea ver de la Eurocopa 2024...
 
 PARTIDOS DISPONIBLES:
@@ -312,27 +329,43 @@ Ingrese el asiento desde donde desee ver el partido (Ej: AA1): """).upper().stri
             ans = input("¿Se encuentra registrado? [s/n]: ")
         
         if ans == "s":
-            dni = input("Ingrese su cédula/DNI: ")
-            while len(dni) == 0 or not dni.isnumeric():
-                print("Ingreso inválido...")
-                dni = input("Ingrese su cédula/DNI: ")
-            
-            if self.binary_search(self.clientes, 0, len(self.clientes) - 1, dni, lambda x: x.cedula) == -1:
-                print("¡El cliente no se encuentra registrado! Su DNI no se encontró...")
-                self.compra_entrada()
+            while True:
+                try:
+                    dni = input("Ingrese su cédula/DNI: ")
+                    if len(dni) == 0 or not dni.isnumeric():
+                        raise Exception
+                    if self.binary_search(self.clientes, 0, len(self.clientes) - 1, dni, lambda x: x.cedula) == -1:
+                        print("¡El cliente no se encuentra registrado! Su DNI no se encontró...")
+                        ans1 = input("""
+¿Quiere intentarlo de nuevo? [s/n]: """)
+                        while ans1 not in ["s", "n"]:
+                            print("Ingreso inválido...")
+                            ans1 = input("¿Quiere intentarlo de nuevo? [s/n]: ")
+                        if ans1 == "s":
+                            continue
+                        else:
+                            return
+                    break
+                except:
+                    print("Ingreso inválido...")
+                    ans1 = input("""
+¿Quiere intentarlo de nuevo? [s/n]: """)
+                    while ans1 not in ["s", "n"]:
+                        print("Ingreso inválido...")
+                        ans1 = input("¿Quiere intentarlo de nuevo? [s/n]: ")
+                    if ans1 == "s":
+                        continue
+                    else:
+                        return
             
             ind = self.binary_search(self.clientes, 0, len(self.clientes) - 1, dni, lambda x: x.cedula)
             cliente = self.clientes[ind]
+            juego_selec = self.seleccion_partido()
             
         else:
             cliente = self.registro_cliente()
+            juego_selec = self.seleccion_partido()
 
-        partidos_disponibles = []
-        for partido in self.partidos:
-            if partido.entradas_general > 0 or partido.entradas_vip > 0:
-                partidos_disponibles.append(partido)
-        
-        juego_selec = self.seleccion_partido(partidos_disponibles)
 
         if cliente.descuento_entrada:
             print("""¡Por su DNI, ha sido beneficiado con un 50(%) de descuento en la compra de entradas!
@@ -396,7 +429,8 @@ Ingrese el asiento desde donde desee ver el partido (Ej: AA1): """).upper().stri
 ¿Desearía comprar una entrada más? [s/n]: """)
                     
                 if opcion2 == "n":
-                    print("¡Gracias por haber comprado en EUROCOPA 2024!")
+                    print("""¡Gracias por haber comprado en EUROCOPA 2024!
+""")
                     break
 
         else:
@@ -435,7 +469,8 @@ Ingrese el asiento desde donde desee ver el partido (Ej: AA1): """).upper().stri
 ¿Desearía comprar una entrada más? [s/n]: """)
                     
                 if opcion2 == "n":
-                    print("¡Gracias por haber comprado en la EUROCOPA 2024!")
+                    print("""¡Gracias por haber comprado en EUROCOPA 2024!
+""")
                     break
         
         if len(cliente.entradas_compradas) > 0:
@@ -443,7 +478,7 @@ Ingrese el asiento desde donde desee ver el partido (Ej: AA1): """).upper().stri
             i = self.binary_search(self.clientes, 0, len(self.clientes) - 1, cliente.cedula, lambda x: x.cedula)
             if i == -1:
                 self.clientes.append(cliente)
-                print(f"""
+            print(f"""
 ////////////////////////////////
 ENTRADAS COMPRADAS: {len(cliente.entradas_compradas)}
 MONTO FINAL: {cliente.cant_entradas}$
@@ -476,9 +511,8 @@ MONTO FINAL: {cliente.cant_entradas}$
                 i = self.binary_search(self.entradas, 0, len(self.entradas) - 1, id_entrada, lambda x: x.id)
                 entrada = self.entradas[i]
                 print(entrada.show())
-                print("""
-////////////////////////////////
-¡Su asistencia ha sido CONFIRMADA exitosamente!""")
+                print("""¡Su asistencia ha sido CONFIRMADA exitosamente!
+////////////////////////////////""")
                 
                 j = self.binary_search(self.partidos, 0, len(self.entradas) - 1, entrada.partido.id, lambda x: x.id)
                 partido = self.partidos[j]
@@ -526,18 +560,6 @@ Bienvenido/a a los restaurantes de la Eurocopa 2024
         4. Búsqueda de los partidos en una fecha determinada
         5. Volver al menú inicial
         """)
-
-    def binary_search(self, lista_arg, min, max, x, key = lambda x: x):
-        if max >= min:
-            mid = (max + min) // 2
-            if key(lista_arg[mid]) == x:
-                return mid
-            elif key(lista_arg[mid]) > x:
-                return self.binary_search(lista_arg, min, mid - 1, x, key)
-            else:
-                return self.binary_search(lista_arg, mid + 1, max, x, key)
-        else:
-            return -1
 
     def menu(self, teams, stadiums, matches):
         self.register_data(teams, stadiums, matches)
@@ -593,10 +615,12 @@ Vuelva por más novedades del torneo internacional más competitivo...
 """)
                 break
 
-            ans = input("¿Desea continuar? [s/n]: ")
+            ans = input("""
+¿Desea continuar? [s/n]: """)
             while ans not in ["s", "n"]:
                 print("Ingreso inválido")
-                ans = input("¿Desea continuar? [s/n]: ")
+                ans = input("""
+¿Desea continuar? [s/n]: """)
 
             if ans == "n":
                 print("""
