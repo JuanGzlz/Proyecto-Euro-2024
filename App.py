@@ -128,7 +128,7 @@ Bienvenido/a a la búsqueda de partidos de la Eurocopa 2024
                         print(f"------------- {i} -------------")
                         print(partido.show())
                 if contador == 0:
-                    print("El país ingresado no fue conseguido")
+                    print("El país ingresado no fue conseguido...")
 
             elif opcion == "3":
                 eleccion_estadio = input("Ingrese un estadio de la Eurocopa: ").lower()
@@ -141,7 +141,7 @@ Bienvenido/a a la búsqueda de partidos de la Eurocopa 2024
                         print(f"------------- {i} -------------")
                         print(partido.show())
                 if contador == 0:
-                    print("El estadio ingresado no fue conseguido")
+                    print("El estadio ingresado no fue conseguido...")
             
             elif opcion == "4":
                 eleccion_fecha = input("Ingrese la fecha que desea ver un partido (AAAA-MM-DD): ")
@@ -154,7 +154,7 @@ Bienvenido/a a la búsqueda de partidos de la Eurocopa 2024
                         print(f"------------- {i} -------------")
                         print(partido.show())
                 if contador == 0:
-                    print("No hay partidos en la fecha ingresada")
+                    print("No hay partidos en la fecha ingresada...")
 
             else:
                 break
@@ -551,15 +551,79 @@ Bienvenido/a a los restaurantes de la Eurocopa 2024
             else:
                 break
 
-    def busqueda_productos():
+    def busqueda_productos(self):
+        print(f"""
+Bienvenido/a a la búsqueda de productos de la Eurocopa 2024
+""")
         while True:
             print("""Seleccione un filtro...
-        1. Ver todos los partidos disponibles
-        2. Búsqueda de los partidos de un país
-        3. Búsqueda de los partidos en un estadio específico
-        4. Búsqueda de los partidos en una fecha determinada
+        1. Ver todos los productos disponibles
+        2. Búsqueda de los productos por nombre
+        3. Búsqueda de los productos por tipo (Bebida/Comida)
+        4. Búsqueda de los productos por rango de precio
         5. Volver al menú inicial
         """)
+            
+            opcion = input("Ingrese el número de la opción que desea elegir: ")
+            while not opcion.isnumeric() or int(opcion) not in range(1,6):
+                print("Ingreso inválido...")
+                opcion = input("Ingrese el número de la opción que desea elegir: ")
+
+            if opcion == "1":
+                i = 0
+                for producto in self.productos:
+                    i += 1
+                    print(f"------------- {i} -------------")
+                    print(producto.show())
+            
+            elif opcion == "2":
+                eleccion_prod = input("Ingrese el nombre del producto que desea buscar: ").lower()
+                contador = 0
+                i = 0
+                for producto1 in self.productos:
+                    if eleccion_prod in producto1.nombre.lower() or eleccion_prod in producto1.nombre.lower():
+                        contador = 1
+                        i += 1
+                        print(f"------------- {i} -------------")
+                        print(producto.show())
+                if contador == 0:
+                    print("El producto ingresado no fue conseguido...")
+
+            elif opcion == "3":
+                opc = input("¿Qué tipo de productos está buscando, bebidas o comidas? [b/c]: ")
+                while opc not in ["b", "c"]:
+                    print("Ingreso inválido...")
+                    opc = input("¿Qué tipo de productos está buscando, bebidas o comidas? [b/c]: ")
+                    
+
+
+                eleccion_estadio = input("Ingrese un estadio de la Eurocopa: ").lower()
+                contador = 0
+                i = 0
+                for partido in self.partidos:
+                    if eleccion_estadio in partido.estadio.nombre.lower():
+                        contador = 1
+                        i += 1
+                        print(f"------------- {i} -------------")
+                        print(partido.show())
+                if contador == 0:
+                    print("El estadio ingresado no fue conseguido...")
+            
+            elif opcion == "4":
+                eleccion_fecha = input("Ingrese la fecha que desea ver un partido (AAAA-MM-DD): ")
+                contador = 0
+                i = 0
+                for partido in self.partidos:
+                    if eleccion_fecha in partido.fecha:
+                        contador = 1
+                        i += 1
+                        print(f"------------- {i} -------------")
+                        print(partido.show())
+                if contador == 0:
+                    print("No hay partidos en la fecha ingresada...")
+
+            else:
+                break
 
     def menu(self, teams, stadiums, matches):
         self.register_data(teams, stadiums, matches)
