@@ -119,7 +119,7 @@ ENTRADAS COMPRADAS: """)
 PRODUCTOS COMPRADOS: """)
             for i, producto in enumerate(self.productos_comprados):
                 print(f"----------- {i+1} -----------")
-                entrada.show()
+                producto.show()
             print(f"GASTO EN PRODUCTOS: {self.cant_productos}$")
         else:
             print("Ningún producto ha sido comprado...")

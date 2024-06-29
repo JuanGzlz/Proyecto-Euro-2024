@@ -20,7 +20,7 @@ class App:
         self.partidos = []
         self.entradas = []
         self.tipo_entradas = {"General": [], "Vip": []}
-        self.entradas_usadas = []
+        self.entradas_verificadas = []
         self.equipos = []
         self.clientes = []
         self.restaurantes = []
@@ -123,7 +123,7 @@ Bienvenido/a a la búsqueda de partidos de la Eurocopa 2024
                 contador = 0
                 i = 0
                 for partido in self.partidos:
-                    if eleccion_estadio in partido.id_estadio.nombre.lower():
+                    if eleccion_estadio in partido.estadio.nombre.lower():
                         contador = 1
                         i += 1
                         print(f"------------- {i} -------------")
@@ -164,10 +164,18 @@ Bienvenido/a al registro OFICIAL de su persona en el sistema de la Eurocopa 2024
 
         nombre_completo = nombre + " " + apellido
 
-        dni = input("Ingrese su cédula/DNI: ").strip()
-        while len(dni) == 0 or not dni.isnumeric():
-            print("Ingreso inválido...")
-            dni = input("Ingrese su cédula/DNI: ").strip()
+        while True:
+            try:
+                dni = input("Ingrese su cédula/DNI: ").strip()
+                if len(dni) == 0 or not dni.isnumeric():
+                    raise Exception
+                j = self.binary_search(self.clientes, 0, len(self.clientes) - 1, dni, lambda x: x.cedula)
+                if j != -1:
+                    print("La cédula/DNI ya se encuentra registrada...")
+                    raise Exception
+                break
+            except:
+                print("Ingreso inválido...")
 
         while True:
             try:
@@ -280,7 +288,7 @@ Ingrese el asiento desde donde desee ver el partido (Ej: AA1): """).upper().stri
 
         id_entradas = self.tipo_entradas["General"] + self.tipo_entradas["Vip"]
         while True:
-            entrada_id = random.randint(100000000, 9999999999)
+            entrada_id = random.randint(1000000000, 9999999999)
             if entrada_id not in id_entradas:
                 break
         
@@ -309,11 +317,11 @@ Ingrese el asiento desde donde desee ver el partido (Ej: AA1): """).upper().stri
                 print("Ingreso inválido...")
                 dni = input("Ingrese su cédula/DNI: ")
             
-            if self.binary_search(self.clientes, 0, len(self.clientes) - 1, dni, lambda x: x.dni) == -1:
+            if self.binary_search(self.clientes, 0, len(self.clientes) - 1, dni, lambda x: x.cedula) == -1:
                 print("¡El cliente no se encuentra registrado! Su DNI no se encontró...")
                 self.compra_entrada()
             
-            ind = self.binary_search(self.clientes, 0, len(self.clientes) - 1, dni, lambda x: x.dni)
+            ind = self.binary_search(self.clientes, 0, len(self.clientes) - 1, dni, lambda x: x.cedula)
             cliente = self.clientes[ind]
             
         else:
@@ -329,7 +337,6 @@ Ingrese el asiento desde donde desee ver el partido (Ej: AA1): """).upper().stri
         if cliente.descuento_entrada:
             print("""¡Por su DNI, ha sido beneficiado con un 50(%) de descuento en la compra de entradas!
 """)
-
 
         print("""ENTRADAS DISPONIBLES:
 ---------------------""")
@@ -428,28 +435,117 @@ Ingrese el asiento desde donde desee ver el partido (Ej: AA1): """).upper().stri
 ¿Desearía comprar una entrada más? [s/n]: """)
                     
                 if opcion2 == "n":
-                    print("¡Gracias por haber comprado en EUROCOPA 2024!")
+                    print("¡Gracias por haber comprado en la EUROCOPA 2024!")
                     break
+        
+        if len(cliente.entradas_compradas) > 0:
+            cliente.gasto_entradas()
+            i = self.binary_search(self.clientes, 0, len(self.clientes) - 1, cliente.cedula, lambda x: x.cedula)
+            if i == -1:
+                self.clientes.append(cliente)
+                print(f"""
+////////////////////////////////
+ENTRADAS COMPRADAS: {len(cliente.entradas_compradas)}
+MONTO FINAL: {cliente.cant_entradas}$
+////////////////////////////////
+""")
 
-    def binary_search(self, list, min, max, x, key = lambda x: x):
-        if len(list) != 0:
-            mid = len(list) // 2
-            if key(list[mid]) == x:
+    def confirmacion_asistencia(self):
+        while True:
+            try:
+                id_entrada = int(input("Ingrese el ID de la entrada para verificarla y confirmar su asistencia: "))
+                if len(str(id_entrada)) == 10:
+                    break
+                else:
+                    print("Ingreso inválido...")
+            except ValueError:
+                print("Ingreso inválido...")
+
+        entradas_totales = self.tipo_entradas["General"] + self.tipo_entradas["Vip"]
+
+        entradas_usadas = []
+        for entrada1 in entradas_totales:
+            entradas_usadas.append(entrada1)
+
+        if id_entrada in entradas_totales:
+            if id_entrada not in self.entradas_verificadas:
+                self.entradas_verificadas.append(id_entrada)
+                print("""
+////////////////////////////////
+¡Su entrada ha sido VERIFICADA exitosamente!""")
+                i = self.binary_search(self.entradas, 0, len(self.entradas) - 1, id_entrada, lambda x: x.id)
+                entrada = self.entradas[i]
+                print(entrada.show())
+                print("""
+////////////////////////////////
+¡Su asistencia ha sido CONFIRMADA exitosamente!""")
+                
+                j = self.binary_search(self.partidos, 0, len(self.entradas) - 1, entrada.partido.id, lambda x: x.id)
+                partido = self.partidos[j]
+                partido.asistencia_confirmada += 1
+            else:
+                print("""
+La entrada ya fue verificada...
+""")
+        else:
+            print("""
+El ID de la entrada ingresada no existe...
+""")
+
+    def info_restaurantes(self):
+        print(f"""
+Bienvenido/a a los restaurantes de la Eurocopa 2024
+""")
+        while True:
+            print("""Seleccione lo que quiera hacer...
+        1. Buscar productos
+        2. Comprar productos
+        3. Volver al menú inicial
+        """)
+                
+            opcion = input("Ingrese el número de la opción que desea elegir: ")
+            while not opcion.isnumeric() or int(opcion) not in range(1,6):
+                print("Ingreso inválido...")
+                opcion = input("Ingrese el número de la opción que desea elegir: ")
+
+            if opcion == "1":
+                pass
+
+            elif opcion == "2":
+                pass
+
+            else:
+                break
+
+    def busqueda_productos():
+        while True:
+            print("""Seleccione un filtro...
+        1. Ver todos los partidos disponibles
+        2. Búsqueda de los partidos de un país
+        3. Búsqueda de los partidos en un estadio específico
+        4. Búsqueda de los partidos en una fecha determinada
+        5. Volver al menú inicial
+        """)
+
+    def binary_search(self, lista_arg, min, max, x, key = lambda x: x):
+        if max >= min:
+            mid = (max + min) // 2
+            if key(lista_arg[mid]) == x:
                 return mid
-            elif key(list[mid]) > x:
-                return self.binary_search(list, min, mid - 1, x, key)
-            elif key(list[mid]) < x:
-                return self.binary_search(list, min + 1, max, x, key)
+            elif key(lista_arg[mid]) > x:
+                return self.binary_search(lista_arg, min, mid - 1, x, key)
+            else:
+                return self.binary_search(lista_arg, mid + 1, max, x, key)
         else:
             return -1
 
     def menu(self, teams, stadiums, matches):
         self.register_data(teams, stadiums, matches)
         print(f"""
---- BIENVENIDO/A A LA EUROCOPA 2024 ---
-""")
+--- BIENVENIDO/A A LA EUROCOPA 2024 ---""")
         while True:
-            print("""MENÚ PRINCIPAL:
+            print("""
+MENÚ PRINCIPAL:
 Ingrese una opción...
         1. Búsqueda de partidos
         2. Compra de entradas
@@ -465,15 +561,30 @@ Ingrese una opción...
                 opcion = input("Ingrese el número de la opción que desea elegir: ")
 
             if opcion == "1":
+                print(f"""
+{'~' * 100}""")
                 self.busqueda_partidos()
+                print(f"{'~' * 100}")
             elif opcion == "2":
+                print(f"""
+{'~' * 100}""")
                 self.compra_entrada()
+                print(f"{'~' * 100}")
             elif opcion == "3":
-                pass
+                print(f"""
+{'~' * 100}""")
+                self.confirmacion_asistencia()
+                print(f"{'~' * 100}")
             elif opcion == "4":
+                print(f"""
+{'~' * 100}""")
                 pass
+                print(f"{'~' * 100}")
             elif opcion == "5":
+                print(f"""
+{'~' * 100}""")
                 pass
+                print(f"{'~' * 100}")
             else:
                 print("""
 Cerrando sesión...

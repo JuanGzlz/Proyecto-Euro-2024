@@ -27,4 +27,5 @@ ESTADIO: {self.estadio.nombre}
 CAPACIDAD: {self.estadio.capacidad[0] + self.estadio.capacidad[1]} personas
 ENTRADAS DISPONIBLES: {self.entradas_general + self.entradas_vip}
 ENTRADAS VENDIDAS: {len(self.asientos_tomados)}
-CONFIRMADOS: {self.asistencia_confirmada}"""
+CONFIRMADOS: {self.asistencia_confirmada}
+"""
