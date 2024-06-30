@@ -1,9 +1,9 @@
 class Restaurante:
 
-    def __init__(self, nombre, estadio, productos):
+    def __init__(self, nombre, estadio):
         self.nombre = nombre
         self.estadio = estadio
-        self.productos = productos
+        self.productos = []
 
     def show(self):
         print(f"""
@@ -14,4 +14,6 @@ ESTADIO: {self.estadio}
 ===========================
 PRODUCTOS: """)
         for i, producto in enumerate(self.productos):
-            print(f"{i+1}. {producto}")
+            print(f"""
+------------- {i+1} -------------""")
+            producto.show()

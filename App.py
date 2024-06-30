@@ -12,6 +12,7 @@ from datetime import datetime
 import pickle
 import random
 import matplotlib.pyplot as grafica
+from tabulate import tabulate
 import numpy as np
 
 class App:
@@ -23,8 +24,6 @@ class App:
         self.entradas_verificadas = []
         self.equipos = []
         self.clientes = []
-        self.restaurantes = []
-        self.productos = []
         self.bebidas = []
         self.comidas = []
 
@@ -40,6 +39,34 @@ class App:
         else:
             return -1
 
+    def merge_sort(self, lista_orden, key = lambda x: x):
+        if len(lista_orden) > 1:
+            mid = len(lista_orden) // 2
+            left = lista_orden[:mid]
+            right = lista_orden[mid:]
+            self.merge_sort(left, key)
+            self.merge_sort(right, key)
+            i = j = k = 0
+
+            while i < len(left) and j < len(right):
+                if key(left[i]) <= key(right[j]):
+                  lista_orden[k] = left[i]
+                  i += 1
+                else:
+                    lista_orden[k] = right[j]
+                    j += 1
+                k += 1
+
+            while i < len(left):
+                lista_orden[k] = left[i]
+                i += 1
+                k += 1
+
+            while j < len(right):
+                lista_orden[k] = right[j]
+                j += 1
+                k += 1
+
     """Función para registrar los datos del .json a objetos"""
     def register_data(self, teams, stadiums, matches):
 
@@ -51,29 +78,25 @@ class App:
 
         """Registrar los datos del estadio en el sistema"""
         for estadio in stadiums:
-            """Transformar los parámetros que sean listas en objetos"""
-            lista_restaurantes = []
-            for restaurante in estadio["restaurants"]:
-                lista_productos = []
-                for producto in restaurante["products"]:
-                    producto = Producto(producto["name"], producto["quantity"], producto["price"], producto["stock"], producto["adicional"], restaurante["name"], estadio["name"])
-                    self.productos.append(producto)
-                    lista_productos.append(producto.nombre)
-                    
-                restaurante = Restaurante(restaurante["name"], estadio["name"], lista_productos)
-                self.restaurantes.append(restaurante)
-                lista_restaurantes.append(restaurante.nombre)
+            estadioinfo = Estadio(estadio["id"], estadio["name"], estadio["city"], estadio["capacity"])
 
-            """Crear el objeto Estadio y asignar sus atributos"""
-            estadio = Estadio(estadio["id"], estadio["name"], estadio["city"], estadio["capacity"], lista_restaurantes)
-            self.estadios.append(estadio)
+            for restaurante in estadio["restaurants"]:
+                restauranteinfo = Restaurante(restaurante["name"], estadio["name"])
+                estadioinfo.restaurantes.append(restauranteinfo)
+                for producto in restaurante["products"]:
+                    productoinfo = Producto(producto["name"], producto["quantity"], producto["price"], producto["stock"], producto["adicional"], restaurante["name"], estadio["name"])
+                    restauranteinfo.productos.append(productoinfo)
+
+            self.estadios.append(estadioinfo)
 
         """Clasificar los productos en Bebidas y Comidas"""
-        for producto1 in self.productos:
-            if producto1.adicional == "alcoholic" or producto1.adicional == "non-alcoholic":
-                self.bebidas.append(producto1)
-            else:
-                self.comidas.append(producto1)
+        for estadio1 in self.estadios:
+                for restaurante1 in estadio1.restaurantes:
+                    for producto1 in restaurante1.productos:
+                        if producto1.adicional == "alcoholic" or producto1.adicional == "non-alcoholic":
+                            self.bebidas.append(producto1)
+                        else:
+                            self.comidas.append(producto1)
 
         """Registrar los datos del partido en el sistema"""
         for partido in matches:
@@ -655,11 +678,14 @@ Seleccione un filtro...
 TODAL DE PRODUCTOS
 ///////////////////
 """)
-                for producto in self.productos:
-                    i += 1
-                    print(f"""
+                for estadio in self.estadios:
+                    for restaurante in estadio.restaurantes:
+                        for producto in restaurante.productos:
+
+                            i += 1
+                            print(f"""
 ------------- {i} -------------""")
-                    print(producto.show())
+                            print(producto.show())
                 ans1 = input("""
 ¿Quiere seguir buscando productos? [s/n]: """)
                 while ans1 not in ["s", "n"]:
@@ -678,13 +704,15 @@ TODAL DE PRODUCTOS
 
                 contador = 0
                 i = 0
-                for producto1 in self.productos:
-                    if eleccion_prod in producto1.nombre.lower() or eleccion_prod in producto1.nombre.lower():
-                        contador = 1
-                        i += 1
-                        print(f"""
+                for estadio in self.estadios:
+                    for restaurante in estadio.restaurantes:
+                        for producto1 in restaurante.productos:
+                            if eleccion_prod in producto1.nombre.lower() or eleccion_prod in producto1.nombre.lower():
+                                contador = 1
+                                i += 1
+                                print(f"""
 ------------- {i} -------------""")
-                        print(producto1.show())
+                                print(producto1.show())
                 if contador == 0:
                     print("El producto ingresado no fue conseguido...")
 
@@ -710,12 +738,14 @@ TODAL DE PRODUCTOS
 TOTAL DE BEBIDAS
 ///////////////////
 """)
-                    for producto2 in self.productos:
-                        if producto2 in self.bebidas:
-                            i += 1
-                            print(f"""
+                    for estadio in self.estadios:
+                        for restaurante in estadio.restaurantes:
+                            for producto2 in restaurante.productos:
+                                if producto2 in self.bebidas:
+                                    i += 1
+                                    print(f"""
 ------------- {i} -------------""")
-                            print(producto2.show())
+                                    print(producto2.show())
                     ans3 = input("""
 ¿Quiere seguir buscando productos? [s/n]: """)
                     while ans3 not in ["s", "n"]:
@@ -732,12 +762,14 @@ TOTAL DE BEBIDAS
 TOTAL DE COMIDAS
 ///////////////////
 """)
-                    for producto3 in self.productos:
-                        if producto3 in self.comidas:
-                            i += 1
-                            print(f"""
+                    for estadio in self.estadios:
+                        for restaurante in estadio.restaurantes:
+                            for producto3 in restaurante.productos:
+                                if producto3 in self.comidas:
+                                    i += 1
+                                    print(f"""
 ------------- {i} -------------""")
-                            print(producto3.show())
+                                    print(producto3.show())
                     ans4 = input("""
 ¿Quiere seguir buscando productos? [s/n]: """)
                     while ans4 not in ["s", "n"]:
@@ -776,13 +808,15 @@ Buscar según el precio (IVA incluido):
 
                         i = 0
                         contador = 0
-                        for producto4 in self.productos:
-                            if precio == producto4.precio:
-                                contador = 1
-                                i += 1
-                                print(f"""
+                        for estadio in self.estadios:
+                            for restaurante in estadio.restaurantes:
+                                for producto4 in restaurante.productos:
+                                    if precio == producto4.precio:
+                                        contador = 1
+                                        i += 1
+                                        print(f"""
 ------------- {i} -------------""")
-                                print(producto4.show())
+                                        print(producto4.show())
                         if contador == 0:
                             print("Ningún producto posee el precio ingresado...")
 
@@ -808,13 +842,15 @@ Buscar según el precio (IVA incluido):
 
                         i = 0
                         contador = 0
-                        for producto5 in self.productos:
-                            if precio1 >= producto5.precio:
-                                contador = 1
-                                i += 1
-                                print(f"""
+                        for estadio in self.estadios:
+                            for restaurante in estadio.restaurantes:
+                                for producto5 in restaurante.productos:
+                                    if precio1 >= producto5.precio:
+                                        contador = 1
+                                        i += 1
+                                        print(f"""
 ------------- {i} -------------""")
-                                print(producto5.show())
+                                        print(producto5.show())
                         if contador == 0:
                             print("No hay productos por debajo del precio ingresado...")
 
@@ -840,13 +876,15 @@ Buscar según el precio (IVA incluido):
 
                         i = 0
                         contador = 0
-                        for producto6 in self.productos:
-                            if precio2 <= producto6.precio:
-                                contador = 1
-                                i += 1
-                                print(f"""
+                        for estadio in self.estadios:
+                            for restaurante in estadio.restaurantes:
+                                for producto6 in restaurante.productos:
+                                    if precio2 <= producto6.precio:
+                                        contador = 1
+                                        i += 1
+                                        print(f"""
 ------------- {i} -------------""")
-                                print(producto6.show())
+                                        print(producto6.show())
                         if contador == 0:
                             print("No hay productos por encima del precio ingresado...")
 
@@ -872,13 +910,15 @@ Buscar según el precio (IVA incluido):
                                 print("Ingreso inválido. Considere que el primer precio sea menor al segundo...")
                         i = 0
                         contador = 0
-                        for producto7 in self.productos:
-                            if producto7.precio >= precio3 and producto7.precio <= precio4:
-                                contador = 1
-                                i += 1
-                                print(f"""
+                        for estadio in self.estadios:
+                            for restaurante in estadio.restaurantes:
+                                for producto7 in restaurante.productos:
+                                    if producto7.precio >= precio3 and producto7.precio <= precio4:
+                                        contador = 1
+                                        i += 1
+                                        print(f"""
 ------------- {i} -------------""")
-                                print(producto7.show())
+                                        print(producto7.show())
                         if contador == 0:
                             print("No hay productos entre los rangos ingresados...")
 
@@ -894,6 +934,8 @@ Buscar según el precio (IVA incluido):
                         
                     else:
                         break
+            else:
+                break
 
     def compra_productos(self):
         validacion1 = True
@@ -911,8 +953,7 @@ Ingrese su cédula/DNI registrada en la compra de entradas: """)
                 cliente_encontrado = None
                 for cliente in self.clientes:
                     if dni == cliente.cedula:
-                        print(f"""Bienvenido/a de vuelta, {cliente.nombre}
-""")
+                        print(f"""Bienvenido/a de vuelta, {cliente.nombre}""")
                         cliente_encontrado = cliente
                         validacion3 = True
                         break
@@ -936,92 +977,229 @@ Ingrese su cédula/DNI registrada en la compra de entradas: """)
 No posee entradas VIP. No puede consumir productos...""")
                 
             if validacion2:
-                
+                print("Hola")
 
-    
+    def grafica_estadisticas(self, abscissa, ordinate, opt, title, y_label):
+
+        if opt == 1:
+            data = ordinate
+            fig = grafica.figure(figsize =(10, 7))
+            ax = grafica.boxplot(data)
+            grafica.title(title)
+            grafica.ylabel(y_label)
+            grafica.show()
+        elif opt == 2:
+            x = np.array(abscissa)
+            y = np.array(ordinate)
+            bar_colors = ['tab:red', 'tab:blue', 'tab:orange']
+            grafica.bar(x, y, color = bar_colors, width = 0.5)
+            grafica.title(title)
+            grafica.ylabel(y_label)
+            grafica.show()
+
     def mostrar_estadisticas(self):
-        pass
+        print("""
+Bienvenido/a a las estadísticas disponibles""")
+        
+        while True:
+            print("""
+Seleccione una estadística...
+        1. Promedio de gasto de un cliente VIP en un partido
+        2. Tabla con asistencia a los partidos (mejor a peor)
+        3. Partido con mayor asistencia confirmada
+        4. Partido con mayor cantidad de boletos vendidos
+        5. Productos más vendidos
+        6. Clientes con mayor cantidad de boletos comprados
+        7. Volver al menú principal
+""")
+            opcion = input("Ingrese el número de la opción que desea elegir: ")
+            while not opcion.isnumeric() or int(opcion) not in range(1,8):
+                print("Ingreso inválido...")
+                opcion = input("Ingrese el número de la opción que desea elegir: ")
 
-    # def leer_archivos(self, teams, stadiums, matches):
-    #     try:
-    #         with open("equipos.pickle", "rb") as file:
-    #             self.equipos = pickle.load(file)
-    #     except:
-    #         self.register_data(teams, stadiums, matches)
-    #         with open("equipos.pickle", "wb") as file:
-    #             pickle.dump(self.equipos, file)
-    #     try:
-    #         with open("estadios.pickle", "rb") as file:
-    #             self.estadios = pickle.load(file)
-    #     except:
-    #         self.register_data(teams, stadiums, matches)
-    #         with open("estadios.pickle", "wb") as file:
-    #             pickle.dump(self.estadios, file)
-    #     try:
-    #         with open("partidos.pickle", "rb") as file:
-    #             self.partidos = pickle.load(file)
-    #     except:
-    #         self.register_data(teams, stadiums, matches)
-    #         with open("partidos.pickle", "wb") as file:
-    #             pickle.dump(self.partidos, file)
-    #     try:
-    #         with open("clientes.pickle", "rb") as file:
-    #             self.clientes = pickle.load(file)
-    #     except:
-    #         with open("clientes.pickle", "wb") as file:
-    #             pickle.dump(self.clientes, file)
-    #     try:
-    #         with open("entradas.pickle", "rb") as file:
-    #             self.entradas = pickle.load(file)
-    #     except:
-    #         with open("entradas.pickle", "wb") as file:
-    #             pickle.dump(self.entradas, file)
-    #     try:
-    #         with open("tipo_entradas.pickle", "rb") as file:
-    #             self.tipo_entradas = pickle.load(file)
-    #     except:
-    #         with open("tipo_entradas.pickle", "wb") as file:
-    #             pickle.dump(self.tipo_entradas, file)
-    #     try:
-    #         with open("entradas_verificadas.pickle", "rb") as file:
-    #             self.entradas_verificadas = pickle.load(file)
-    #     except:
-    #         with open("entradas_verificadas.pickle", "wb") as file:
-    #             pickle.dump(self.entradas_verificadas, file)
-    #     try:
-    #         with open("restaurantes.pickle", "rb") as file:
-    #             self.restaurantes = pickle.load(file)
-    #     except:
-    #         self.register_data(teams, stadiums, matches)
-    #         with open("restaurantes.pickle", "wb") as file:
-    #             pickle.dump(self.restaurantes, file)
-    #     try:
-    #         with open("productos.pickle", "rb") as file:
-    #             self.productos = pickle.load(file)
-    #     except:
-    #         self.register_data(teams, stadiums, matches)
-    #         with open("productos.pickle", "wb") as file:
-    #             pickle.dump(self.productos, file)
+            if opcion == "1":
+                entradas_vip = list(filter(lambda cliente: type(cliente.entradas_compradas[0]) == Vip, self.clientes))
+                if len(entradas_vip) != 0:
+                    total_entradasvip = 0
+                    for cliente in entradas_vip:
+                        total_entradasvip += cliente.cant_entradavip
+                    total_productos = 0
+                    for cliente in entradas_vip:
+                        total_productos += cliente.cant_productos
+                    
+                    promedio_gastado = (total_entradasvip + total_productos) / len(entradas_vip)
 
-    # def salvar_archivos(self):
-    #     with open("equipos.pickle", "wb") as file_1:
-    #         pickle.dump(self.equipos, file_1)
-    #     with open("clientes.pickle", "wb") as file_2:
-    #         pickle.dump(self.clientes, file_2)
-    #     with open("entradas.pickle", "wb") as file_3:
-    #         pickle.dump(self.entradas, file_3)
-    #     with open("tipo_entradas.pickle", "wb") as file_4:
-    #         pickle.dump(self.tipo_entradas, file_4)
-    #     with open("entradas_verificadas.pickle", "wb") as file_5:
-    #         pickle.dump(self.entradas_verificadas, file_5)
-    #     with open("estadios.pickle", "wb") as file_6:
-    #         pickle.dump(self.estadios, file_6)
-    #     with open("partidos.pickle", "wb") as file_7:
-    #         pickle.dump(self.partidos, file_7)
-    #     with open("restaurantes.pickle", "wb") as file_8:
-    #         pickle.dump(self.restaurantes, file_8)
-    #     with open("productos.pickle", "wb") as file_9:
-    #         pickle.dump(self.productos, file_9)
+                    print(f"""
+PROMEDIO DE GASTO DE CLIENTE VIP: {promedio_gastado}
+""")
+                    grafica1 = []
+                    for cliente1 in entradas_vip:
+                        total = cliente1.cant_entradavip + cliente1.cant_productos
+                        grafica1.append(total)
+
+                    self.grafica_estadisticas(None, grafica1, 1, "Promedio de gasto de un cliente Vip", "Gasto")
+
+                else:
+                    print("""
+No se han registrado clientes VIP...
+""")
+
+            elif opcion == "2":
+                foo = list(filter(lambda g: g.asistencia_confirmada > 0, self.matches))
+
+                if len(foo) != 0:
+                    self.merge_sort(foo, lambda x: x.asistencia_confirmada)
+
+                    print("""
+                          Tabla con la asistencia a los partidos
+""")
+                    filas = []
+                    for i in range(1,len(foo)+1):
+                        juego  = f"{foo[-i].local.nombre} vs {foo[-i].visitante.nombre}"
+                        estadio = foo[-i].estadio.nombre
+                        ent_general = foo[-i].estadio.capacidad[0] - foo[-i].entradas_general
+                        ent_vip = foo[-i].estadio.capacidad[1] - foo[-i].entradas_vip
+                        total_vendido = ent_general + ent_vip
+                        asistencia = foo[-i].asistencia_confirmada
+                        relacion = asistencia / total_vendido
+                        filas.append([juego, estadio, asistencia, ent_general, ent_vip, total_vendido, relacion])
+
+                    encabezados = ["Partido", "Estadio", "Asistencia", "Entradas General\n Vendidos", "Entradas VIP\n Vendidos", "Total de Entradas\n Vendidas", "Relación Asistencia/Ventas"]
+                    print(tabulate(filas, encabezados, tablefmt="grid"))
+                    print("""
+""")
+
+                    if len(foo) <= 3:
+                        self.merge_sort(foo, lambda x: x.asistencia_confirmada)
+                        abscissa = []
+                        for i in range(1,len(foo)+1)
+                        abscissa = [f"{foo[-i].local.nombre} vs {foo[-i].visitante.nombre}" for i in range(1,len(foo)+1)]
+                        ordinate = [foo[-i].asistencia_confirmada for i in range(1,len(foo)+1)]
+                        self.plotter(abscissa, ordinate, 2, "Partidos con mayor asistencia", "Asistencia")
+                    else:
+                        self.merge_sort(foo, lambda x: x.asistencia_confirmada)
+                        abscissa = [f"{foo[-i].local.nombre} vs {foo[-i].visitante.nombre}" for i in range(1,4)]
+                        ordinate = [foo[-i].asistencia_confirmada for i in range(1,4)]
+                        self.plotter(abscissa, ordinate, 2, "Top 3 de partidos con mayor asistencia", "Asistencia")
+                else:
+                    print("\n\t\tLa asistencia a los partidos es 0\n")
+
+            elif opcion == "3":
+                variable = list(filter(lambda x: x.asistencia_confirmada > 0, self.partidos))
+                if len(variable) != 0:
+                    self.merge_sort(variable, lambda x: x.asistencia_confirmada)
+                    print(f"""
+PARTIDO CON MAYOR ASISTENCIA:{variable[-1].local.nombre} vs {variable[-1].visitante.nombre} 
+ASISTENCIA: {variable[-1].asistencia_confirmada} personas
+ESTADIO: {variable[-1].estadio.nombre}
+""")
+
+                    abscissa = []
+                    ordinate = []
+                    for i in range(1, len(variable) + 1):
+                        partido = f"{variable[-i].local.nombre} vs {variable[-i].visitante.nombre}"
+                        abscissa.append(partido)
+                        asistencia = variable[-i].asistencia_confirmada
+                        ordinate.append(asistencia)
+                    self.grafica_estadisticas(abscissa, ordinate, 2, "PARTIDOS CON MÁS ASISTENTES", "ASISTENCIA")
+
+                else:
+                    print("""
+Actualmente, no hay asistencia confirmada a los partidos...
+""")
+
+            elif opcion == "4":
+                variable1 = list(filter(lambda x: len(x.asientos_tomados) > 0, self.partidos))
+                if len(variable1) != 0:
+                    self.merge_sort(variable1, lambda x: len(x.asientos_tomados))
+                    print(f"""
+PARTIDO CON MÁS ENTRADAS VENDIDAS:{variable1[-1].local.nombre} vs {variable1[-1].visitante.nombre} 
+ENTRADAS VENDIDAS: {len(variable1[-1].asientos_tomados)}
+ESTADIO: {variable1[-1].estadio.nombre}
+""")
+
+                    abscissa = []
+                    ordinate = []
+                    for i in range(1, len(variable1) + 1):
+                        partido = f"{variable1[-i].local.nombre} vs {variable1[-i].visitante.nombre}"
+                        abscissa.append(partido)
+                        asistencia = len(variable1[-i].asientos_tomados)
+                        ordinate.append(asistencia)
+                    self.grafica_estadisticas(abscissa, ordinate, 2, "PARTIDOS CON MÁS VENTAS", "BOLETOS VENDIDOS")
+
+                else:
+                    print("""
+Actualmente, en ningún partido se han vendido entradas...
+""")
+
+            elif opcion == "5":
+                pass
+
+            else:
+                break
+
+    def leer_archivos(self, teams, stadiums, matches):
+        try:
+            with open("equipos.pickle", "rb") as file:
+                self.equipos = pickle.load(file)
+        except:
+            self.register_data(teams, stadiums, matches)
+            with open("equipos.pickle", "wb") as file:
+                pickle.dump(self.equipos, file)
+        try:
+            with open("estadios.pickle", "rb") as file:
+                self.estadios = pickle.load(file)
+        except:
+            self.register_data(teams, stadiums, matches)
+            with open("estadios.pickle", "wb") as file:
+                pickle.dump(self.estadios, file)
+        try:
+            with open("partidos.pickle", "rb") as file:
+                self.partidos = pickle.load(file)
+        except:
+            self.register_data(teams, stadiums, matches)
+            with open("partidos.pickle", "wb") as file:
+                pickle.dump(self.partidos, file)
+        try:
+            with open("clientes.pickle", "rb") as file:
+                self.clientes = pickle.load(file)
+        except:
+            with open("clientes.pickle", "wb") as file:
+                pickle.dump(self.clientes, file)
+        try:
+            with open("entradas.pickle", "rb") as file:
+                self.entradas = pickle.load(file)
+        except:
+            with open("entradas.pickle", "wb") as file:
+                pickle.dump(self.entradas, file)
+        try:
+            with open("tipo_entradas.pickle", "rb") as file:
+                self.tipo_entradas = pickle.load(file)
+        except:
+            with open("tipo_entradas.pickle", "wb") as file:
+                pickle.dump(self.tipo_entradas, file)
+        try:
+            with open("entradas_verificadas.pickle", "rb") as file:
+                self.entradas_verificadas = pickle.load(file)
+        except:
+            with open("entradas_verificadas.pickle", "wb") as file:
+                pickle.dump(self.entradas_verificadas, file)
+
+    def salvar_archivos(self):
+        with open("equipos.pickle", "wb") as file_1:
+            pickle.dump(self.equipos, file_1)
+        with open("clientes.pickle", "wb") as file_2:
+            pickle.dump(self.clientes, file_2)
+        with open("entradas.pickle", "wb") as file_3:
+            pickle.dump(self.entradas, file_3)
+        with open("tipo_entradas.pickle", "wb") as file_4:
+            pickle.dump(self.tipo_entradas, file_4)
+        with open("entradas_verificadas.pickle", "wb") as file_5:
+            pickle.dump(self.entradas_verificadas, file_5)
+        with open("estadios.pickle", "wb") as file_6:
+            pickle.dump(self.estadios, file_6)
+        with open("partidos.pickle", "wb") as file_7:
+            pickle.dump(self.partidos, file_7)
 
     def menu(self, teams, stadiums, matches):
         self.register_data(teams, stadiums, matches)
