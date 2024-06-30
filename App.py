@@ -398,12 +398,12 @@ Ingrese el asiento desde donde desee ver el partido (Ej: AA1): """).upper().stri
         asiento_selec = self.mapa_disponibilidad(juego_selec)
 
         if tipo_entrada == "General":
-            entrada = General(entrada_id, juego_selec, juego_selec.estadio, asiento_selec, "General")
+            entrada = General(entrada_id, juego_selec, juego_selec.estadio, asiento_selec)
             entrada.descuento = cliente.descuento_entrada
             return entrada
         
         if tipo_entrada == "Vip":
-            entrada = Vip(entrada_id, juego_selec, juego_selec.estadio, asiento_selec, "Vip")
+            entrada = Vip(entrada_id, juego_selec, juego_selec.estadio, asiento_selec,)
             entrada.descuento = cliente.descuento_entrada
             return entrada
 
@@ -937,54 +937,32 @@ Buscar según el precio (IVA incluido):
             else:
                 break
 
-    def compra_ent(self):
-        for cliente in self.clientes:
-            if cliente.entradas_compradas[-1].tipo == "Vip":
-                pass
-            else:
-                print("No puede comprar, no es VIP")
-
     def compra_productos(self):
         validacion1 = True
-        validacion2 = False
-        cliente_encontrado = None
+        validacion2 = True
 
         while True:
             try:
-                dni = input("""
-Ingrese su cédula/DNI registrada en la compra de entradas: """)
-                if len(dni) == 0 or not dni.isnumeric():
+                dni = input("\nIngrese su DNI: ")
+                if dni =="" or not dni.isnumeric():
                     raise Exception
-                
-                validacion3 = False
-                cliente_encontrado = None
-                for cliente in self.clientes:
-                    if dni == cliente.cedula:
-                        print(f"""Bienvenido/a de vuelta, {cliente.nombre}""")
-                        cliente_encontrado = cliente
-                        validacion3 = True
-                        break
-
-                if not validacion3:
-                    print("No hay clientes con este DNI...")
+                elif list(filter(lambda x: x.cedula == dni, self.clientes)) == []:
+                    print("""
+No hay clientes con este DNI...""")
                     validacion1 = False
                 break
-
-            except ValueError:
+            except:
                 print("Ingreso inválido...")
 
-
         if validacion1:
-            for entrada in cliente_encontrado.entradas_compradas:
-                if isinstance(entrada, Vip):
-                    validacion2 = True
-
-            if not validacion2:
+            cliente = list(filter(lambda x: x.cedula == dni, self.clients))[0]
+            if list(filter(lambda x: isinstance(x, Vip), cliente.entradas_compradas)) == []:
                 print("""
 No posee entradas VIP. No puede consumir productos...""")
+                validacion2 = False
                 
             if validacion2:
-                print("Hola")
+                
 
     def grafica_estadisticas(self, abscissa, ordinate, opt, title, y_label):
 
@@ -1039,12 +1017,12 @@ Seleccione una estadística...
                     print(f"""
 PROMEDIO DE GASTO DE CLIENTE VIP: {promedio_gastado}
 """)
-                    grafica1 = []
+                    data = []
                     for cliente1 in entradas_vip:
                         total = cliente1.cant_entradavip + cliente1.cant_productos
-                        grafica1.append(total)
+                        data.append(total)
 
-                    self.grafica_estadisticas(None, grafica1, 1, "PROMEDIO GASTO: CLIENTE VIP", "GASTO")
+                    self.grafica_estadisticas(None, data, 1, "PROMEDIO GASTO: CLIENTE VIP", "GASTO")
 
                 else:
                     print("""
@@ -1149,7 +1127,89 @@ Actualmente, en ningún partido se han vendido entradas...
 """)
 
             elif opcion == "5":
-                pass
+                lista_restaurantes = []
+                for estadio1 in self.estadios:
+                    for restaurante in estadio1.restaurantes:
+                        lista_restaurantes.append(restaurante)
+                
+                self.merge_sort(lista_restaurantes, lambda x: x.nombre)
+                print("""
+RESTAURANTES:
+""")
+                while True:
+                    for i, restaurante1 in enumerate(lista_restaurantes):
+                        print(f"{i+1}. {restaurante1.nombre}")
+                    
+                    opc = input("""
+Ingrese el número de un restaurante para ver sus productos más vendidos: """)
+                    while not opc.isnumeric() or int(opc) not in range(1, len(lista_restaurantes) + 1):
+                        print("Ingreso inválido...")
+                        opc = input("""
+Ingrese el número de un restaurante para ver sus productos más vendidos: """)
+
+                    rest = lista_restaurantes[int(opc) - 1]
+                    producs = list(filter(lambda x: x.ventas > 0, rest.productos))
+                    self.merge_sort(producs, lambda x: x.ventas)
+
+                    if len(producs) == 0:
+                        print("""
+Ningún producto ha sido vendido en este restaurante...""")
+                        
+                        ans1 = input("""
+¿Quiere seguir viendo los productos más vendidos? [s/n]: """)
+                        while ans1 not in ["s", "n"]:
+                            print("Ingreso inválido...")
+                            ans1 = input("¿Quiere seguir viendo los productos más vendidos? [s/n]: ")
+                        if ans1 == "s":
+                            continue
+                        else:
+                            return
+
+                    elif len(producs) <= 3:
+                        print(f"""
+TOP 3 productos más vendidos de '{rest.nombre}'""")
+                        for i in range(1, len(producs)+1):
+                            print(f"{i}. {producs[-i].nombre}: {producs[-i].ventas} VENTAS")
+                            
+                        abscissa = []
+                        ordinate = []
+                        for j in range(1, len(producs)+1):
+                            abscissa.append(producs[-j].nombre)
+                            ordinate.append(producs[-j].ventas)
+                        self.grafica_estadisticas(abscissa, ordinate, 2, f"PRODUCTOS MÁS VENDIDOS: {rest.nombre}", "VENTAS")
+                        
+                        ans2 = input("""
+¿Quiere seguir viendo los productos más vendidos? [s/n]: """)
+                        while ans2 not in ["s", "n"]:
+                            print("Ingreso inválido...")
+                            ans2 = input("¿Quiere seguir viendo los productos más vendidos? [s/n]: ")
+                        if ans2 == "s":
+                            continue
+                        else:
+                            return 
+                    
+                    else:
+                        print(f"""
+TOP 3 productos más vendidos de '{rest.nombre}'""")
+                        for i in range(1,4):
+                            print(f"{i}. {producs[-i].nombre}: {producs[-i].ventas} VENTAS")
+
+                        abscissa = []
+                        ordinate = []
+                        for j in range(1, len(producs)+1):
+                            abscissa.append(producs[-j].nombre)
+                            ordinate.append(producs[-j].ventas)
+                        self.grafica_estadisticas(abscissa, ordinate, 2, f"PRODUCTOS MÁS VENDIDOS: {rest.nombre}", "VENTAS")
+                        
+                        ans3 = input("""
+¿Quiere seguir viendo los productos más vendidos? [s/n]: """)
+                        while ans3 not in ["s", "n"]:
+                            print("Ingreso inválido...")
+                            ans3 = input("¿Quiere seguir viendo los productos más vendidos? [s/n]: ")
+                        if ans3 == "s":
+                            continue
+                        else:
+                            return
 
             elif opcion == "6":
                 self.merge_sort(self.clientes, lambda x: len(x.entradas_compradas))
@@ -1161,9 +1221,9 @@ COMPRA TOTAL: {len(cliente.entradas_compradas)} entradas
                 abscissa = []
                 ordinate = []
                 for n in range(1,len(self.clientes)+1):
-                    nom = f"{self.clientes[-n].nombre} {self.clients[-n].last_name}"
+                    nom = self.clientes[-n].nombre
                     abscissa.append(nom)
-                    ent_cliente = len(self.clients[-n].entradas_compradas)
+                    ent_cliente = len(self.clientes[-n].entradas_compradas)
                     ordinate.append(ent_cliente)
                 self.grafica_estadisticas(abscissa, ordinate, 2, "CLIENTES CON MÁS ENTRADAS COMPRADAS", "ENTRADAS COMPRADAS")
 

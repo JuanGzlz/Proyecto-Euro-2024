@@ -2,8 +2,8 @@ from Entrada import Entrada
 
 class Vip(Entrada):
 
-    def __init__(self, id, partido, estadio, asiento, tipo):
-        super().__init__(id, partido, estadio, asiento, tipo)
+    def __init__(self, id, partido, estadio, asiento):
+        super().__init__(id, partido, estadio, asiento)
         self.precio = 75
 
     def precio_real(self):

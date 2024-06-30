@@ -1,6 +1,6 @@
 class Entrada:
 
-    def __init__(self, id, partido, estadio, asiento, tipo):
+    def __init__(self, id, partido, estadio, asiento):
         self.id = id
         self.partido = partido
         self.estadio = estadio
@@ -10,7 +10,6 @@ class Entrada:
         self.cantidad_descuento = 0
         self.impuestos = 0.16
         self.total = 0
-        self.tipo = tipo
 
     def show(self):
         if self.descuento:
