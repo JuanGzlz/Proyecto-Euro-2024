@@ -8,7 +8,7 @@ from Entrada import Entrada
 from Vip import Vip
 from General import General
 
-import datetime
+from datetime import datetime
 import pickle
 import random
 import matplotlib.pyplot as grafica
@@ -129,6 +129,10 @@ Seleccione un filtro...
             
             elif opcion == "2":
                 eleccion_pais = input("Ingrese el nombre o código FIFA de un país (en inglés): ").lower()
+                while eleccion_pais == "" or not eleccion_pais.isalpha():
+                    print("Ingreso inválido...")
+                    eleccion_pais = input("Ingrese el nombre o código FIFA de un país (en inglés): ").lower()
+
                 contador = 0
                 i = 0
                 for partido in self.partidos:
@@ -154,6 +158,10 @@ Seleccione un filtro...
 
             elif opcion == "3":
                 eleccion_estadio = input("Ingrese un estadio de la Eurocopa 2024: ").lower()
+                while eleccion_estadio == "" or not eleccion_estadio.isalpha():
+                    print("Ingreso inválido...")
+                    eleccion_estadio = input("Ingrese un estadio de la Eurocopa 2024: ").lower()
+
                 contador = 0
                 i = 0
                 for partido in self.partidos:
@@ -165,7 +173,7 @@ Seleccione un filtro...
                         print(partido.show())
 
                 if contador == 0:
-                    print("El país ingresado no fue conseguido...")
+                    print("El estadio ingresado no fue conseguido...")
         
                 ans3 = input("""
 ¿Quiere seguir buscando partidos? [s/n]: """)
@@ -178,7 +186,16 @@ Seleccione un filtro...
                     return
             
             elif opcion == "4":
-                eleccion_fecha = input("Ingrese la fecha que desea ver un partido (AAAA-MM-DD): ")
+                while True:
+                    eleccion_fecha = input("Ingrese la fecha que desea ver un partido (AAAA-MM-DD): ")
+                    try:
+                        if datetime.strptime(eleccion_fecha, "%Y-%m-%d"):
+                            break
+                        else:
+                            raise Exception
+                    except ValueError:
+                        print("Ingreso inválido. Por favor, ingrese la fecha en el formato AAAA-MM-DD...")
+
                 contador = 0
                 i = 0
                 for partido in self.partidos:
@@ -190,7 +207,7 @@ Seleccione un filtro...
                         print(partido.show())
 
                 if contador == 0:
-                    print("El país ingresado no fue conseguido...")
+                    print("En la fecha ingresada no hay partidos...")
 
                 ans4 = input("""
 ¿Quiere seguir buscando partidos? [s/n]: """)
@@ -533,44 +550,54 @@ MONTO FINAL: {cliente.cant_entradas}$
 
     def confirmacion_asistencia(self):
         while True:
-            try:
-                id_entrada = int(input("Ingrese el ID de la entrada para verificarla y confirmar su asistencia: "))
-                if len(str(id_entrada)) == 10:
-                    break
-                else:
+            while True:
+                try:
+                    id_entrada = int(input("""
+Ingrese el ID de la entrada para verificarla y confirmar su asistencia: """))
+                    if len(str(id_entrada)) == 10:
+                        break
+                    else:
+                        print("Ingreso inválido. El ID debe poseer 10 dígitos...")
+                except ValueError:
                     print("Ingreso inválido...")
-            except ValueError:
-                print("Ingreso inválido...")
 
-        entradas_totales = self.tipo_entradas["General"] + self.tipo_entradas["Vip"]
+            entradas_totales = self.tipo_entradas["General"] + self.tipo_entradas["Vip"]
 
-        entradas_usadas = []
-        for entrada1 in entradas_totales:
-            entradas_usadas.append(entrada1)
+            entradas_usadas = []
+            for entrada1 in entradas_totales:
+                entradas_usadas.append(entrada1)
 
-        if id_entrada in entradas_totales:
-            if id_entrada not in self.entradas_verificadas:
-                self.entradas_verificadas.append(id_entrada)
-                print("""
+            if id_entrada in entradas_totales:
+                if id_entrada not in self.entradas_verificadas:
+                    self.entradas_verificadas.append(id_entrada)
+                    print("""
 ////////////////////////////////
 ¡Su entrada ha sido VERIFICADA exitosamente!""")
-                i = self.binary_search(self.entradas, 0, len(self.entradas) - 1, id_entrada, lambda x: x.id)
-                entrada = self.entradas[i]
-                print(entrada.show())
-                print("""¡Su asistencia ha sido CONFIRMADA exitosamente!
+                    i = self.binary_search(self.entradas, 0, len(self.entradas) - 1, id_entrada, lambda x: x.id)
+                    entrada = self.entradas[i]
+                    print(entrada.show())
+                    print("""¡Su asistencia ha sido CONFIRMADA exitosamente!
 ////////////////////////////////""")
-                
-                j = self.binary_search(self.partidos, 0, len(self.entradas) - 1, entrada.partido.id, lambda x: x.id)
-                partido = self.partidos[j]
-                partido.asistencia_confirmada += 1
+                    
+                    j = self.binary_search(self.partidos, 0, len(self.entradas) - 1, entrada.partido.id, lambda x: x.id)
+                    partido = self.partidos[j]
+                    partido.asistencia_confirmada += 1
+                    break
+                else:
+                    print("""La entrada ya fue verificada...
+""")
+                    break
             else:
-                print("""
-La entrada ya fue verificada...
-""")
-        else:
-            print("""
-El ID de la entrada ingresada no existe...
-""")
+                print("""El ID de la entrada ingresada no existe...""")
+                ans = input("""
+¿Quiere intentarlo de nuevo? [s/n]: """)
+                while ans not in ["s", "n"]:
+                    print("Ingreso inválido...")
+                    ans = input("¿Quiere intentarlo de nuevo? [s/n]: ")
+                if ans == "s":
+                    continue
+                else:
+                    return
 
     def info_restaurantes(self):
         print(f"""
@@ -584,7 +611,7 @@ Seleccione lo que quiera hacer...
         """)
                 
             opcion = input("Ingrese el número de la opción que desea elegir: ")
-            while not opcion.isnumeric() or int(opcion) not in range(1,6):
+            while not opcion.isnumeric() or int(opcion) not in range(1,4):
                 print("Ingreso inválido...")
                 opcion = input("Ingrese el número de la opción que desea elegir: ")
 
@@ -597,8 +624,9 @@ Seleccione lo que quiera hacer...
             elif opcion == "2":
                 print(f"""
 {'~' * 100}""")
-                pass
+                self.compra_productos()
                 print(f"{'~' * 100}")
+                # self.salvar_archivos()
 
             else:
                 break
@@ -644,6 +672,10 @@ TODAL DE PRODUCTOS
             
             elif opcion == "2":
                 eleccion_prod = input("Ingrese el nombre del producto que desea buscar: ").lower()
+                while eleccion_prod == "" or not eleccion_prod.isalpha():
+                    print("Ingreso inválido...")
+                    eleccion_prod = input("Ingrese el nombre del producto que desea buscar: ").lower()
+
                 contador = 0
                 i = 0
                 for producto1 in self.productos:
@@ -719,111 +751,282 @@ TOTAL DE COMIDAS
             elif opcion == "4":
                 while True:
                     print("""
-Buscar según el precio (IVA incluido)...
+Buscar según el precio (IVA incluido):
         1. Igual a...
         2. Menor a...
         3. Mayor a...
         4. Entre...
         5. Volver a los filtros de búsqueda
         """)
-                eleccion_precio = input("Ingrese la fecha que desea ver un partido (AAAA-MM-DD): ")
-                contador = 0
-                i = 0
-                for partido in self.partidos:
-                    if eleccion_fecha in partido.fecha:
-                        contador = 1
-                        i += 1
-                        print(f"------------- {i} -------------")
-                        print(partido.show())
-                if contador == 0:
-                    print("No hay partidos en la fecha ingresada...")
+                    opcion1 = input("Ingrese el número de la opción que desea elegir: ")
+                    while not opcion1.isnumeric() or int(opcion1) not in range(1,6):
+                        print("Ingreso inválido...")
+                        opcion1 = input("Ingrese el número de la opción que desea elegir: ")
 
-            else:
+
+                    if opcion1 == "1":
+                        while True:
+                            try:
+                                precio = float(input("Ingrese el precio de cualquier producto: "))
+                                if precio <= 0:
+                                    raise Exception
+                                break
+                            except ValueError:
+                                print("Ingreso inválido...")
+
+                        i = 0
+                        contador = 0
+                        for producto4 in self.productos:
+                            if precio == producto4.precio:
+                                contador = 1
+                                i += 1
+                                print(f"""
+------------- {i} -------------""")
+                                print(producto4.show())
+                        if contador == 0:
+                            print("Ningún producto posee el precio ingresado...")
+
+                        ans5 = input("""
+¿Quiere seguir buscando productos según el precio? [s/n]: """)
+                        while ans5 not in ["s", "n"]:
+                            print("Ingreso inválido...")
+                            ans5 = input("¿Quiere seguir buscando productos según el precio? [s/n]: ")
+                        if ans5 == "s":
+                            continue
+                        else:
+                            return
+                        
+                    elif opcion1 == "2":
+                        while True:
+                            try:
+                                precio1 = float(input("Ingrese un precio para mostrar todos los productos menores a este: "))
+                                if precio1 <= 0:
+                                    raise Exception
+                                break
+                            except ValueError:
+                                print("Ingreso inválido...")
+
+                        i = 0
+                        contador = 0
+                        for producto5 in self.productos:
+                            if precio1 >= producto5.precio:
+                                contador = 1
+                                i += 1
+                                print(f"""
+------------- {i} -------------""")
+                                print(producto5.show())
+                        if contador == 0:
+                            print("No hay productos por debajo del precio ingresado...")
+
+                        ans6 = input("""
+¿Quiere seguir buscando productos según el precio? [s/n]: """)
+                        while ans6 not in ["s", "n"]:
+                            print("Ingreso inválido...")
+                            ans6 = input("¿Quiere seguir buscando productos según el precio? [s/n]: ")
+                        if ans6 == "s":
+                            continue
+                        else:
+                            return
+
+                    elif opcion1 == "3":
+                        while True:
+                            try:
+                                precio2 = float(input("Ingrese un precio para mostrar todos los productos mayores a este: "))
+                                if precio2 <= 0:
+                                    raise Exception
+                                break
+                            except ValueError:
+                                print("Ingreso inválido...")
+
+                        i = 0
+                        contador = 0
+                        for producto6 in self.productos:
+                            if precio2 <= producto6.precio:
+                                contador = 1
+                                i += 1
+                                print(f"""
+------------- {i} -------------""")
+                                print(producto6.show())
+                        if contador == 0:
+                            print("No hay productos por encima del precio ingresado...")
+
+                        ans7 = input("""
+¿Quiere seguir buscando productos según el precio? [s/n]: """)
+                        while ans7 not in ["s", "n"]:
+                            print("Ingreso inválido...")
+                            ans7 = input("¿Quiere seguir buscando productos según el precio? [s/n]: ")
+                        if ans7 == "s":
+                            continue
+                        else:
+                            return
+
+                    elif opcion1 == "4":
+                        while True:
+                            try:
+                                precio3 = float(input("Ingrese un precio como el límite menor: "))
+                                precio4 = float(input("Ingrese un precio como el límite mayor: "))
+                                if precio3 <= 0 or precio4 <= 0 or precio3 >= precio4:
+                                    raise Exception
+                                break
+                            except ValueError:
+                                print("Ingreso inválido. Considere que el primer precio sea menor al segundo...")
+                        i = 0
+                        contador = 0
+                        for producto7 in self.productos:
+                            if producto7.precio >= precio3 and producto7.precio <= precio4:
+                                contador = 1
+                                i += 1
+                                print(f"""
+------------- {i} -------------""")
+                                print(producto7.show())
+                        if contador == 0:
+                            print("No hay productos entre los rangos ingresados...")
+
+                        ans8 = input("""
+¿Quiere seguir buscando productos según el precio? [s/n]: """)
+                        while ans8 not in ["s", "n"]:
+                            print("Ingreso inválido...")
+                            ans8 = input("¿Quiere seguir buscando productos según el precio? [s/n]: ")
+                        if ans8 == "s":
+                            continue
+                        else:
+                            return
+                        
+                    else:
+                        break
+
+    def compra_productos(self):
+        validacion1 = True
+        validacion2 = False
+        cliente_encontrado = None
+
+        while True:
+            try:
+                dni = input("""
+Ingrese su cédula/DNI registrada en la compra de entradas: """)
+                if len(dni) == 0 or not dni.isnumeric():
+                    raise Exception
+                
+                validacion3 = False
+                cliente_encontrado = None
+                for cliente in self.clientes:
+                    if dni == cliente.cedula:
+                        print(f"""Bienvenido/a de vuelta, {cliente.nombre}
+""")
+                        cliente_encontrado = cliente
+                        validacion3 = True
+                        break
+
+                if not validacion3:
+                    print("No hay clientes con este DNI...")
+                    validacion1 = False
                 break
 
-    def leer_archivos(self):
-        try:
-            with open("equipos.pickle", "rb") as file:
-                self.equipos = pickle.load(file)
-        except:
-            self.register_data()
-            with open("equipos.pickle", "wb") as file:
-                pickle.dump(self.equipos, file)
-        try:
-            with open("estadios.pickle", "rb") as file:
-                self.estadios = pickle.load(file)
-        except:
-            self.register_data()
-            with open("estadios.pickle", "wb") as file:
-                pickle.dump(self.estadios, file)
-        try:
-            with open("partidos.pickle", "rb") as file:
-                self.partidos = pickle.load(file)
-        except:
-            self.register_data()
-            with open("partidos.pickle", "wb") as file:
-                pickle.dump(self.partidos, file)
-        try:
-            with open("clientes.pickle", "rb") as file:
-                self.clientes = pickle.load(file)
-        except:
-            with open("clientes.pickle", "wb") as file:
-                pickle.dump(self.clientes, file)
-        try:
-            with open("entradas.pickle", "rb") as file:
-                self.entradas = pickle.load(file)
-        except:
-            with open("entradas.pickle", "wb") as file:
-                pickle.dump(self.entradas, file)
-        try:
-            with open("tipo_entradas.pickle", "rb") as file:
-                self.tipo_entradas = pickle.load(file)
-        except:
-            with open("tipo_entradas.pickle", "wb") as file:
-                pickle.dump(self.tipo_entradas, file)
-        try:
-            with open("entradas_verificadas.pickle", "rb") as file:
-                self.entradas_verificadas = pickle.load(file)
-        except:
-            with open("entradas_verificadas.pickle", "wb") as file:
-                pickle.dump(self.entradas_verificadas, file)
-        try:
-            with open("restaurantes.pickle", "rb") as file:
-                self.restaurantes = pickle.load(file)
-        except:
-            self.register_data()
-            with open("restaurantes.pickle", "wb") as file:
-                pickle.dump(self.restaurantes, file)
-        try:
-            with open("productos.pickle", "rb") as file:
-                self.productos = pickle.load(file)
-        except:
-            self.register_data()
-            with open("productos.pickle", "wb") as file:
-                pickle.dump(self.productos, file)
+            except ValueError:
+                print("Ingreso inválido...")
 
-    def salvar_archivos(self):
-        with open("equipos.pickle", "wb") as file_1:
-            pickle.dump(self.equipos, file_1)
-        with open("clientes.pickle", "wb") as file_2:
-            pickle.dump(self.clientes, file_2)
-        with open("entradas.pickle", "wb") as file_3:
-            pickle.dump(self.entradas, file_3)
-        with open("tipo_entradas.pickle", "wb") as file_4:
-            pickle.dump(self.tipo_entradas, file_4)
-        with open("entradas_verificadas.pickle", "wb") as file_5:
-            pickle.dump(self.entradas_verificadas, file_5)
-        with open("estadios.pickle", "wb") as file_6:
-            pickle.dump(self.estadios, file_6)
-        with open("partidos.pickle", "wb") as file_7:
-            pickle.dump(self.partidos, file_7)
-        with open("restaurantes.pickle", "wb") as file_8:
-            pickle.dump(self.restaurantes, file_8)
-        with open("productos.pickle", "wb") as file_9:
-            pickle.dump(self.productos, file_9)
+
+        if validacion1:
+            for entrada in cliente_encontrado.entradas_compradas:
+                if isinstance(entrada, Vip):
+                    validacion2 = True
+
+            if not validacion2:
+                print("""
+No posee entradas VIP. No puede consumir productos...""")
+                
+            if validacion2:
+                
+
+    
+    def mostrar_estadisticas(self):
+        pass
+
+    # def leer_archivos(self, teams, stadiums, matches):
+    #     try:
+    #         with open("equipos.pickle", "rb") as file:
+    #             self.equipos = pickle.load(file)
+    #     except:
+    #         self.register_data(teams, stadiums, matches)
+    #         with open("equipos.pickle", "wb") as file:
+    #             pickle.dump(self.equipos, file)
+    #     try:
+    #         with open("estadios.pickle", "rb") as file:
+    #             self.estadios = pickle.load(file)
+    #     except:
+    #         self.register_data(teams, stadiums, matches)
+    #         with open("estadios.pickle", "wb") as file:
+    #             pickle.dump(self.estadios, file)
+    #     try:
+    #         with open("partidos.pickle", "rb") as file:
+    #             self.partidos = pickle.load(file)
+    #     except:
+    #         self.register_data(teams, stadiums, matches)
+    #         with open("partidos.pickle", "wb") as file:
+    #             pickle.dump(self.partidos, file)
+    #     try:
+    #         with open("clientes.pickle", "rb") as file:
+    #             self.clientes = pickle.load(file)
+    #     except:
+    #         with open("clientes.pickle", "wb") as file:
+    #             pickle.dump(self.clientes, file)
+    #     try:
+    #         with open("entradas.pickle", "rb") as file:
+    #             self.entradas = pickle.load(file)
+    #     except:
+    #         with open("entradas.pickle", "wb") as file:
+    #             pickle.dump(self.entradas, file)
+    #     try:
+    #         with open("tipo_entradas.pickle", "rb") as file:
+    #             self.tipo_entradas = pickle.load(file)
+    #     except:
+    #         with open("tipo_entradas.pickle", "wb") as file:
+    #             pickle.dump(self.tipo_entradas, file)
+    #     try:
+    #         with open("entradas_verificadas.pickle", "rb") as file:
+    #             self.entradas_verificadas = pickle.load(file)
+    #     except:
+    #         with open("entradas_verificadas.pickle", "wb") as file:
+    #             pickle.dump(self.entradas_verificadas, file)
+    #     try:
+    #         with open("restaurantes.pickle", "rb") as file:
+    #             self.restaurantes = pickle.load(file)
+    #     except:
+    #         self.register_data(teams, stadiums, matches)
+    #         with open("restaurantes.pickle", "wb") as file:
+    #             pickle.dump(self.restaurantes, file)
+    #     try:
+    #         with open("productos.pickle", "rb") as file:
+    #             self.productos = pickle.load(file)
+    #     except:
+    #         self.register_data(teams, stadiums, matches)
+    #         with open("productos.pickle", "wb") as file:
+    #             pickle.dump(self.productos, file)
+
+    # def salvar_archivos(self):
+    #     with open("equipos.pickle", "wb") as file_1:
+    #         pickle.dump(self.equipos, file_1)
+    #     with open("clientes.pickle", "wb") as file_2:
+    #         pickle.dump(self.clientes, file_2)
+    #     with open("entradas.pickle", "wb") as file_3:
+    #         pickle.dump(self.entradas, file_3)
+    #     with open("tipo_entradas.pickle", "wb") as file_4:
+    #         pickle.dump(self.tipo_entradas, file_4)
+    #     with open("entradas_verificadas.pickle", "wb") as file_5:
+    #         pickle.dump(self.entradas_verificadas, file_5)
+    #     with open("estadios.pickle", "wb") as file_6:
+    #         pickle.dump(self.estadios, file_6)
+    #     with open("partidos.pickle", "wb") as file_7:
+    #         pickle.dump(self.partidos, file_7)
+    #     with open("restaurantes.pickle", "wb") as file_8:
+    #         pickle.dump(self.restaurantes, file_8)
+    #     with open("productos.pickle", "wb") as file_9:
+    #         pickle.dump(self.productos, file_9)
 
     def menu(self, teams, stadiums, matches):
         self.register_data(teams, stadiums, matches)
+        # self.leer_archivos(teams, stadiums, matches)
+        
         print(f"""
 --- BIENVENIDO/A A LA EUROCOPA 2024 ---""")
         while True:
@@ -835,7 +1038,7 @@ Ingrese una opción...
         3. Confirmación de asistencia
         4. Acerca de los restaurantes
         5. Revisión de estadísticas
-        6. Salir
+        6. Guardar y salir
         """)
                 
             opcion = input("Ingrese el número de la opción que desea elegir: ")
@@ -848,32 +1051,38 @@ Ingrese una opción...
 {'~' * 100}""")
                 self.busqueda_partidos()
                 print(f"{'~' * 100}")
+
             elif opcion == "2":
                 print(f"""
 {'~' * 100}""")
                 self.compra_entrada()
                 print(f"{'~' * 100}")
+
             elif opcion == "3":
                 print(f"""
 {'~' * 100}""")
                 self.confirmacion_asistencia()
                 print(f"{'~' * 100}")
+
             elif opcion == "4":
                 print(f"""
 {'~' * 100}""")
                 self.info_restaurantes()
                 print(f"{'~' * 100}")
+
             elif opcion == "5":
                 print(f"""
 {'~' * 100}""")
-                pass
+                self.mostrar_estadisticas()
                 print(f"{'~' * 100}")
+
             else:
                 print("""
 Cerrando sesión...
 Vuelva por más novedades del torneo internacional más competitivo...
 ¡LA EUROCOPA 2024!
 """)
+                # self.salvar_archivos()
                 break
 
             ans = input("""
@@ -889,4 +1098,5 @@ Cerrando sesión...
 Vuelva por más novedades del torneo internacional más competitivo...
 ¡LA EUROCOPA 2024!
 """)
+                # self.salvar_archivos()
                 break
