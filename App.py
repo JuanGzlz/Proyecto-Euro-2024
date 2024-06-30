@@ -398,12 +398,12 @@ Ingrese el asiento desde donde desee ver el partido (Ej: AA1): """).upper().stri
         asiento_selec = self.mapa_disponibilidad(juego_selec)
 
         if tipo_entrada == "General":
-            entrada = General(entrada_id, juego_selec, juego_selec.estadio, asiento_selec)
+            entrada = General(entrada_id, juego_selec, juego_selec.estadio, asiento_selec, "General")
             entrada.descuento = cliente.descuento_entrada
             return entrada
         
         if tipo_entrada == "Vip":
-            entrada = Vip(entrada_id, juego_selec, juego_selec.estadio, asiento_selec)
+            entrada = Vip(entrada_id, juego_selec, juego_selec.estadio, asiento_selec, "Vip")
             entrada.descuento = cliente.descuento_entrada
             return entrada
 
@@ -937,6 +937,13 @@ Buscar según el precio (IVA incluido):
             else:
                 break
 
+    def compra_ent(self):
+        for cliente in self.clientes:
+            if cliente.entradas_compradas[-1].tipo == "Vip":
+                pass
+            else:
+                print("No puede comprar, no es VIP")
+
     def compra_productos(self):
         validacion1 = True
         validacion2 = False
@@ -1037,7 +1044,7 @@ PROMEDIO DE GASTO DE CLIENTE VIP: {promedio_gastado}
                         total = cliente1.cant_entradavip + cliente1.cant_productos
                         grafica1.append(total)
 
-                    self.grafica_estadisticas(None, grafica1, 1, "Promedio de gasto de un cliente Vip", "Gasto")
+                    self.grafica_estadisticas(None, grafica1, 1, "PROMEDIO GASTO: CLIENTE VIP", "GASTO")
 
                 else:
                     print("""
@@ -1045,13 +1052,13 @@ No se han registrado clientes VIP...
 """)
 
             elif opcion == "2":
-                foo = list(filter(lambda g: g.asistencia_confirmada > 0, self.matches))
+                foo = list(filter(lambda g: g.asistencia_confirmada > 0, self.partidos))
 
                 if len(foo) != 0:
                     self.merge_sort(foo, lambda x: x.asistencia_confirmada)
 
                     print("""
-                          Tabla con la asistencia a los partidos
+                          Tabla con la asistencia a los partidos.
 """)
                     filas = []
                     for i in range(1,len(foo)+1):
@@ -1066,23 +1073,32 @@ No se han registrado clientes VIP...
 
                     encabezados = ["Partido", "Estadio", "Asistencia", "Entradas General\n Vendidos", "Entradas VIP\n Vendidos", "Total de Entradas\n Vendidas", "Relación Asistencia/Ventas"]
                     print(tabulate(filas, encabezados, tablefmt="grid"))
-                    print("""
-""")
+                    print(""" """)
 
                     if len(foo) <= 3:
                         self.merge_sort(foo, lambda x: x.asistencia_confirmada)
                         abscissa = []
-                        for i in range(1,len(foo)+1)
-                        abscissa = [f"{foo[-i].local.nombre} vs {foo[-i].visitante.nombre}" for i in range(1,len(foo)+1)]
-                        ordinate = [foo[-i].asistencia_confirmada for i in range(1,len(foo)+1)]
-                        self.plotter(abscissa, ordinate, 2, "Partidos con mayor asistencia", "Asistencia")
+                        ordinate = []
+                        for i in range(1,len(foo)+1):
+                            partido_nom = f"{foo[-i].local.nombre} vs {foo[-i].visitante.nombre}"
+                            abscissa.append(partido_nom)
+                            asistencia_nom = foo[-i].asistencia_confirmada
+                            ordinate.append(asistencia_nom)
+                        self.grafica_estadisticas(abscissa, ordinate, 2, "PARTIDOS CON MÁS ASISTENCIA", "ASISTENCIA")
                     else:
                         self.merge_sort(foo, lambda x: x.asistencia_confirmada)
-                        abscissa = [f"{foo[-i].local.nombre} vs {foo[-i].visitante.nombre}" for i in range(1,4)]
-                        ordinate = [foo[-i].asistencia_confirmada for i in range(1,4)]
-                        self.plotter(abscissa, ordinate, 2, "Top 3 de partidos con mayor asistencia", "Asistencia")
+                        abscissa = []
+                        ordinate = []
+                        for i in range(1, 4):
+                            partido_nom1 = f"{foo[-i].local.nombre} vs {foo[-i].visitante.nombre}"
+                            abscissa.append(partido_nom1)
+                            asistencia_nom1 = foo[-i].asistencia_confirmada
+                            ordinate.append(asistencia_nom1)
+                        self.grafica_estadisticas(abscissa, ordinate, 2, "TOP 3 PARTIDOS: MAYOR ASISTENCIA", "ASISTENCIA")
                 else:
-                    print("\n\t\tLa asistencia a los partidos es 0\n")
+                    print("""
+Actualmente, no hay asistencia confirmada a los partidos...
+""")
 
             elif opcion == "3":
                 variable = list(filter(lambda x: x.asistencia_confirmada > 0, self.partidos))
@@ -1097,10 +1113,10 @@ ESTADIO: {variable[-1].estadio.nombre}
                     abscissa = []
                     ordinate = []
                     for i in range(1, len(variable) + 1):
-                        partido = f"{variable[-i].local.nombre} vs {variable[-i].visitante.nombre}"
-                        abscissa.append(partido)
-                        asistencia = variable[-i].asistencia_confirmada
-                        ordinate.append(asistencia)
+                        partido_nom2 = f"{variable[-i].local.nombre} vs {variable[-i].visitante.nombre}"
+                        abscissa.append(partido_nom2)
+                        asistencia_nom2 = variable[-i].asistencia_confirmada
+                        ordinate.append(asistencia_nom2)
                     self.grafica_estadisticas(abscissa, ordinate, 2, "PARTIDOS CON MÁS ASISTENTES", "ASISTENCIA")
 
                 else:
@@ -1121,10 +1137,10 @@ ESTADIO: {variable1[-1].estadio.nombre}
                     abscissa = []
                     ordinate = []
                     for i in range(1, len(variable1) + 1):
-                        partido = f"{variable1[-i].local.nombre} vs {variable1[-i].visitante.nombre}"
-                        abscissa.append(partido)
-                        asistencia = len(variable1[-i].asientos_tomados)
-                        ordinate.append(asistencia)
+                        partido_nom3 = f"{variable1[-i].local.nombre} vs {variable1[-i].visitante.nombre}"
+                        abscissa.append(partido_nom3)
+                        asistencia_nom3 = len(variable1[-i].asientos_tomados)
+                        ordinate.append(asistencia_nom3)
                     self.grafica_estadisticas(abscissa, ordinate, 2, "PARTIDOS CON MÁS VENTAS", "BOLETOS VENDIDOS")
 
                 else:
@@ -1134,6 +1150,22 @@ Actualmente, en ningún partido se han vendido entradas...
 
             elif opcion == "5":
                 pass
+
+            elif opcion == "6":
+                self.merge_sort(self.clientes, lambda x: len(x.entradas_compradas))
+                cliente = self.clientes[-1]
+                print(f"""
+CLIENTE CON MÁS ENTRADAS COMPRADAS: {cliente.nombre}
+COMPRA TOTAL: {len(cliente.entradas_compradas)} entradas
+""")
+                abscissa = []
+                ordinate = []
+                for n in range(1,len(self.clientes)+1):
+                    nom = f"{self.clientes[-n].nombre} {self.clients[-n].last_name}"
+                    abscissa.append(nom)
+                    ent_cliente = len(self.clients[-n].entradas_compradas)
+                    ordinate.append(ent_cliente)
+                self.grafica_estadisticas(abscissa, ordinate, 2, "CLIENTES CON MÁS ENTRADAS COMPRADAS", "ENTRADAS COMPRADAS")
 
             else:
                 break

@@ -2,8 +2,8 @@ from Entrada import Entrada
 
 class General(Entrada):
 
-    def __init__(self, id, partido, estadio, asiento):
-        super().__init__(id, partido, estadio, asiento)
+    def __init__(self, id, partido, estadio, asiento, tipo):
+        super().__init__(id, partido, estadio, asiento, tipo)
         self.precio = 35
 
     def precio_real(self):
