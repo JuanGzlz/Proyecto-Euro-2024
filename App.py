@@ -56,13 +56,13 @@ class App:
             for restaurante in estadio["restaurants"]:
                 lista_productos = []
                 for producto in restaurante["products"]:
-                    producto = Producto(producto["name"], producto["quantity"], producto["price"], estadio["name"], producto["stock"], producto["adicional"])
+                    producto = Producto(producto["name"], producto["quantity"], producto["price"], producto["stock"], producto["adicional"], restaurante["name"], estadio["name"])
                     self.productos.append(producto)
-                    lista_productos.append(producto)
+                    lista_productos.append(producto.nombre)
                     
                 restaurante = Restaurante(restaurante["name"], estadio["name"], lista_productos)
                 self.restaurantes.append(restaurante)
-                lista_restaurantes.append(restaurante)
+                lista_restaurantes.append(restaurante.nombre)
 
             """Crear el objeto Estadio y asignar sus atributos"""
             estadio = Estadio(estadio["id"], estadio["name"], estadio["city"], estadio["capacity"], lista_restaurantes)
@@ -720,11 +720,11 @@ TOTAL DE COMIDAS
                 while True:
                     print("""
 Buscar según el precio (IVA incluido)...
-        1. Ver todos los productos disponibles
-        2. Búsqueda de los productos por nombre
-        3. Búsqueda de los productos por tipo (Bebida/Comida)
-        4. Búsqueda de los productos por rango de precio
-        5. Volver al menú anterior
+        1. Igual a...
+        2. Menor a...
+        3. Mayor a...
+        4. Entre...
+        5. Volver a los filtros de búsqueda
         """)
                 eleccion_precio = input("Ingrese la fecha que desea ver un partido (AAAA-MM-DD): ")
                 contador = 0
@@ -740,6 +740,87 @@ Buscar según el precio (IVA incluido)...
 
             else:
                 break
+
+    def leer_archivos(self):
+        try:
+            with open("equipos.pickle", "rb") as file:
+                self.equipos = pickle.load(file)
+        except:
+            self.register_data()
+            with open("equipos.pickle", "wb") as file:
+                pickle.dump(self.equipos, file)
+        try:
+            with open("estadios.pickle", "rb") as file:
+                self.estadios = pickle.load(file)
+        except:
+            self.register_data()
+            with open("estadios.pickle", "wb") as file:
+                pickle.dump(self.estadios, file)
+        try:
+            with open("partidos.pickle", "rb") as file:
+                self.partidos = pickle.load(file)
+        except:
+            self.register_data()
+            with open("partidos.pickle", "wb") as file:
+                pickle.dump(self.partidos, file)
+        try:
+            with open("clientes.pickle", "rb") as file:
+                self.clientes = pickle.load(file)
+        except:
+            with open("clientes.pickle", "wb") as file:
+                pickle.dump(self.clientes, file)
+        try:
+            with open("entradas.pickle", "rb") as file:
+                self.entradas = pickle.load(file)
+        except:
+            with open("entradas.pickle", "wb") as file:
+                pickle.dump(self.entradas, file)
+        try:
+            with open("tipo_entradas.pickle", "rb") as file:
+                self.tipo_entradas = pickle.load(file)
+        except:
+            with open("tipo_entradas.pickle", "wb") as file:
+                pickle.dump(self.tipo_entradas, file)
+        try:
+            with open("entradas_verificadas.pickle", "rb") as file:
+                self.entradas_verificadas = pickle.load(file)
+        except:
+            with open("entradas_verificadas.pickle", "wb") as file:
+                pickle.dump(self.entradas_verificadas, file)
+        try:
+            with open("restaurantes.pickle", "rb") as file:
+                self.restaurantes = pickle.load(file)
+        except:
+            self.register_data()
+            with open("restaurantes.pickle", "wb") as file:
+                pickle.dump(self.restaurantes, file)
+        try:
+            with open("productos.pickle", "rb") as file:
+                self.productos = pickle.load(file)
+        except:
+            self.register_data()
+            with open("productos.pickle", "wb") as file:
+                pickle.dump(self.productos, file)
+
+    def salvar_archivos(self):
+        with open("equipos.pickle", "wb") as file_1:
+            pickle.dump(self.equipos, file_1)
+        with open("clientes.pickle", "wb") as file_2:
+            pickle.dump(self.clientes, file_2)
+        with open("entradas.pickle", "wb") as file_3:
+            pickle.dump(self.entradas, file_3)
+        with open("tipo_entradas.pickle", "wb") as file_4:
+            pickle.dump(self.tipo_entradas, file_4)
+        with open("entradas_verificadas.pickle", "wb") as file_5:
+            pickle.dump(self.entradas_verificadas, file_5)
+        with open("estadios.pickle", "wb") as file_6:
+            pickle.dump(self.estadios, file_6)
+        with open("partidos.pickle", "wb") as file_7:
+            pickle.dump(self.partidos, file_7)
+        with open("restaurantes.pickle", "wb") as file_8:
+            pickle.dump(self.restaurantes, file_8)
+        with open("productos.pickle", "wb") as file_9:
+            pickle.dump(self.productos, file_9)
 
     def menu(self, teams, stadiums, matches):
         self.register_data(teams, stadiums, matches)

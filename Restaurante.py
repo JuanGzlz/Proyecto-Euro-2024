@@ -9,9 +9,9 @@ class Restaurante:
         print(f"""
 INFORMACIÓN DEL RESTAURANTE
 ===========================
-NOMBRE: {self.nombre}
+{self.nombre}
+ESTADIO: {self.estadio}
 ===========================
 PRODUCTOS: """)
         for i, producto in enumerate(self.productos):
-            print(f"----------- {i+1} -----------")
-            producto.show()
+            print(f"{i+1}. {producto}")
