@@ -1,7 +1,8 @@
 class Restaurante:
 
-    def __init__(self, nombre, productos):
+    def __init__(self, nombre, estadio, productos):
         self.nombre = nombre
+        self.estadio = estadio
         self.productos = productos
 
     def show(self):

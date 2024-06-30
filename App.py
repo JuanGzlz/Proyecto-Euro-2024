@@ -56,11 +56,11 @@ class App:
             for restaurante in estadio["restaurants"]:
                 lista_productos = []
                 for producto in restaurante["products"]:
-                    producto = Producto(producto["name"], producto["quantity"], producto["price"], producto["stock"], producto["adicional"])
+                    producto = Producto(producto["name"], producto["quantity"], producto["price"], estadio["name"], producto["stock"], producto["adicional"])
                     self.productos.append(producto)
                     lista_productos.append(producto)
                     
-                restaurante = Restaurante(restaurante["name"], lista_productos)
+                restaurante = Restaurante(restaurante["name"], estadio["name"], lista_productos)
                 self.restaurantes.append(restaurante)
                 lista_restaurantes.append(restaurante)
 
@@ -94,10 +94,10 @@ class App:
 
     def busqueda_partidos(self):
         print(f"""
-Bienvenido/a a la búsqueda de partidos de la Eurocopa 2024
-""")
+Bienvenido/a a la búsqueda de partidos de la Eurocopa 2024""")
         while True:
-            print("""Seleccione un filtro...
+            print("""
+Seleccione un filtro...
         1. Ver todos los partidos disponibles
         2. Búsqueda de los partidos de un país
         3. Búsqueda de los partidos en un estadio específico
@@ -114,8 +114,18 @@ Bienvenido/a a la búsqueda de partidos de la Eurocopa 2024
                 i = 0
                 for partido in self.partidos:
                     i += 1
-                    print(f"------------- {i} -------------")
+                    print(f"""
+------------- {i} -------------""")
                     print(partido.show())
+                ans1 = input("""
+¿Quiere seguir buscando partidos? [s/n]: """)
+                while ans1 not in ["s", "n"]:
+                    print("Ingreso inválido...")
+                    ans1 = input("¿Quiere seguir buscando partidos? [s/n]: ")
+                if ans1 == "s":
+                    continue
+                else:
+                    return
             
             elif opcion == "2":
                 eleccion_pais = input("Ingrese el nombre o código FIFA de un país (en inglés): ").lower()
@@ -125,23 +135,47 @@ Bienvenido/a a la búsqueda de partidos de la Eurocopa 2024
                     if eleccion_pais in partido.local.nombre.lower() or eleccion_pais in partido.visitante.nombre.lower():
                         contador = 1
                         i += 1
-                        print(f"------------- {i} -------------")
+                        print(f"""
+------------- {i} -------------""")
                         print(partido.show())
+
                 if contador == 0:
                     print("El país ingresado no fue conseguido...")
 
+                ans2 = input("""
+¿Quiere seguir buscando partidos? [s/n]: """)
+                while ans2 not in ["s", "n"]:
+                    print("Ingreso inválido...")
+                    ans1 = input("¿Quiere seguir buscando partidos? [s/n]: ")
+                if ans2 == "s":
+                    continue
+                else:
+                    return
+
             elif opcion == "3":
-                eleccion_estadio = input("Ingrese un estadio de la Eurocopa: ").lower()
+                eleccion_estadio = input("Ingrese un estadio de la Eurocopa 2024: ").lower()
                 contador = 0
                 i = 0
                 for partido in self.partidos:
                     if eleccion_estadio in partido.estadio.nombre.lower():
                         contador = 1
                         i += 1
-                        print(f"------------- {i} -------------")
+                        print(f"""
+------------- {i} -------------""")
                         print(partido.show())
+
                 if contador == 0:
-                    print("El estadio ingresado no fue conseguido...")
+                    print("El país ingresado no fue conseguido...")
+        
+                ans3 = input("""
+¿Quiere seguir buscando partidos? [s/n]: """)
+                while ans3 not in ["s", "n"]:
+                    print("Ingreso inválido...")
+                    ans1 = input("¿Quiere seguir buscando partidos? [s/n]: ")
+                if ans3 == "s":
+                    continue
+                else:
+                    return
             
             elif opcion == "4":
                 eleccion_fecha = input("Ingrese la fecha que desea ver un partido (AAAA-MM-DD): ")
@@ -151,10 +185,22 @@ Bienvenido/a a la búsqueda de partidos de la Eurocopa 2024
                     if eleccion_fecha in partido.fecha:
                         contador = 1
                         i += 1
-                        print(f"------------- {i} -------------")
+                        print(f"""
+------------- {i} -------------""")
                         print(partido.show())
+
                 if contador == 0:
-                    print("No hay partidos en la fecha ingresada...")
+                    print("El país ingresado no fue conseguido...")
+
+                ans4 = input("""
+¿Quiere seguir buscando partidos? [s/n]: """)
+                while ans4 not in ["s", "n"]:
+                    print("Ingreso inválido...")
+                    ans4 = input("¿Quiere seguir buscando partidos? [s/n]: ")
+                if ans4 == "s":
+                    continue
+                else:
+                    return
 
             else:
                 break
@@ -528,10 +574,10 @@ El ID de la entrada ingresada no existe...
 
     def info_restaurantes(self):
         print(f"""
-Bienvenido/a a los restaurantes de la Eurocopa 2024
-""")
+Bienvenido/a a los restaurantes de la Eurocopa 2024""")
         while True:
-            print("""Seleccione lo que quiera hacer...
+            print("""
+Seleccione lo que quiera hacer...
         1. Buscar productos
         2. Comprar productos
         3. Volver al menú inicial
@@ -543,25 +589,31 @@ Bienvenido/a a los restaurantes de la Eurocopa 2024
                 opcion = input("Ingrese el número de la opción que desea elegir: ")
 
             if opcion == "1":
-                pass
+                print(f"""
+{'~' * 100}""")
+                self.busqueda_productos()
+                print(f"{'~' * 100}")
 
             elif opcion == "2":
+                print(f"""
+{'~' * 100}""")
                 pass
+                print(f"{'~' * 100}")
 
             else:
                 break
 
     def busqueda_productos(self):
         print(f"""
-Bienvenido/a a la búsqueda de productos de la Eurocopa 2024
-""")
+Bienvenido/a a la búsqueda de productos de la Eurocopa 2024""")
         while True:
-            print("""Seleccione un filtro...
+            print("""
+Seleccione un filtro...
         1. Ver todos los productos disponibles
         2. Búsqueda de los productos por nombre
         3. Búsqueda de los productos por tipo (Bebida/Comida)
         4. Búsqueda de los productos por rango de precio
-        5. Volver al menú inicial
+        5. Volver al menú anterior
         """)
             
             opcion = input("Ingrese el número de la opción que desea elegir: ")
@@ -571,10 +623,24 @@ Bienvenido/a a la búsqueda de productos de la Eurocopa 2024
 
             if opcion == "1":
                 i = 0
+                print("""///////////////////
+TODAL DE PRODUCTOS
+///////////////////
+""")
                 for producto in self.productos:
                     i += 1
-                    print(f"------------- {i} -------------")
+                    print(f"""
+------------- {i} -------------""")
                     print(producto.show())
+                ans1 = input("""
+¿Quiere seguir buscando productos? [s/n]: """)
+                while ans1 not in ["s", "n"]:
+                    print("Ingreso inválido...")
+                    ans1 = input("¿Quiere seguir buscando productos? [s/n]: ")
+                if ans1 == "s":
+                    continue
+                else:
+                    return
             
             elif opcion == "2":
                 eleccion_prod = input("Ingrese el nombre del producto que desea buscar: ").lower()
@@ -584,33 +650,83 @@ Bienvenido/a a la búsqueda de productos de la Eurocopa 2024
                     if eleccion_prod in producto1.nombre.lower() or eleccion_prod in producto1.nombre.lower():
                         contador = 1
                         i += 1
-                        print(f"------------- {i} -------------")
-                        print(producto.show())
+                        print(f"""
+------------- {i} -------------""")
+                        print(producto1.show())
                 if contador == 0:
                     print("El producto ingresado no fue conseguido...")
+
+                ans2 = input("""
+¿Quiere seguir buscando productos? [s/n]: """)
+                while ans2 not in ["s", "n"]:
+                    print("Ingreso inválido...")
+                    ans2 = input("¿Quiere seguir buscando productos? [s/n]: ")
+                if ans2 == "s":
+                    continue
+                else:
+                    return
 
             elif opcion == "3":
                 opc = input("¿Qué tipo de productos está buscando, bebidas o comidas? [b/c]: ")
                 while opc not in ["b", "c"]:
                     print("Ingreso inválido...")
-                    opc = input("¿Qué tipo de productos está buscando, bebidas o comidas? [b/c]: ")
-                    
+                    opc = input("¿Qué tipo de productos está buscando, bebidas o comidas? [b/c]: ")     
 
-
-                eleccion_estadio = input("Ingrese un estadio de la Eurocopa: ").lower()
-                contador = 0
-                i = 0
-                for partido in self.partidos:
-                    if eleccion_estadio in partido.estadio.nombre.lower():
-                        contador = 1
-                        i += 1
-                        print(f"------------- {i} -------------")
-                        print(partido.show())
-                if contador == 0:
-                    print("El estadio ingresado no fue conseguido...")
+                if opc == "b":
+                    i = 0
+                    print("""///////////////////
+TOTAL DE BEBIDAS
+///////////////////
+""")
+                    for producto2 in self.productos:
+                        if producto2 in self.bebidas:
+                            i += 1
+                            print(f"""
+------------- {i} -------------""")
+                            print(producto2.show())
+                    ans3 = input("""
+¿Quiere seguir buscando productos? [s/n]: """)
+                    while ans3 not in ["s", "n"]:
+                        print("Ingreso inválido...")
+                        ans3 = input("¿Quiere seguir buscando productos? [s/n]: ")
+                    if ans3 == "s":
+                        continue
+                    else:
+                        return
+                
+                else:
+                    i = 0
+                    print("""///////////////////
+TOTAL DE COMIDAS
+///////////////////
+""")
+                    for producto3 in self.productos:
+                        if producto3 in self.comidas:
+                            i += 1
+                            print(f"""
+------------- {i} -------------""")
+                            print(producto3.show())
+                    ans4 = input("""
+¿Quiere seguir buscando productos? [s/n]: """)
+                    while ans4 not in ["s", "n"]:
+                        print("Ingreso inválido...")
+                        ans4 = input("¿Quiere seguir buscando productos? [s/n]: ")
+                    if ans4 == "s":
+                        continue
+                    else:
+                        return
             
             elif opcion == "4":
-                eleccion_fecha = input("Ingrese la fecha que desea ver un partido (AAAA-MM-DD): ")
+                while True:
+                    print("""
+Buscar según el precio (IVA incluido)...
+        1. Ver todos los productos disponibles
+        2. Búsqueda de los productos por nombre
+        3. Búsqueda de los productos por tipo (Bebida/Comida)
+        4. Búsqueda de los productos por rango de precio
+        5. Volver al menú anterior
+        """)
+                eleccion_precio = input("Ingrese la fecha que desea ver un partido (AAAA-MM-DD): ")
                 contador = 0
                 i = 0
                 for partido in self.partidos:
@@ -664,7 +780,7 @@ Ingrese una opción...
             elif opcion == "4":
                 print(f"""
 {'~' * 100}""")
-                pass
+                self.info_restaurantes()
                 print(f"{'~' * 100}")
             elif opcion == "5":
                 print(f"""
