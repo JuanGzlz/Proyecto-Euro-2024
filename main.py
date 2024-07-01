@@ -2,7 +2,7 @@ import requests
 from App import App
 
 def main():
-    """Bajar los datos de la API"""
+# Bajar los datos de la API"
 
     teams = requests.request("GET", "https://raw.githubusercontent.com/Algoritmos-y-Programacion/api-proyecto/main/teams.json").json()
 

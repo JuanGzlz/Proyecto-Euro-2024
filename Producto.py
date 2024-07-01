@@ -10,13 +10,16 @@ class Producto:
         self.estadio = estadio
         self.cantidad_gastada = 0
 
+# Modificar el stock de los productos
     def ventas_stock(self, cantidad):
         self.stock -= cantidad
         self.ventas += cantidad
 
+# Calcular el monto gastado en productos por el cliente
     def dinero_gastado(self):
         self.cantidad_gastada = self.ventas * self.precio
 
+# Mostrar los datos completos del producto
     def show(self):
         return f"""
 INFORMACIÓN DEL PRODUCTO

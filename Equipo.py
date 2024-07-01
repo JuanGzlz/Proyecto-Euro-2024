@@ -6,8 +6,7 @@ class Equipo:
         self.nombre = nombre
         self.grupo = grupo
 
-    """Mostrar los datos completos del equipo"""
-
+# Mostrar los datos completos del equipo
     def show(self):
         return f"""
 INFORMACIÓN DEL EQUIPO

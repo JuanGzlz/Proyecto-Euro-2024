@@ -13,8 +13,7 @@ class Partido:
         self.asientos_tomados = []
         self.asistencia_confirmada = 0
 
-    """Mostrar los datos completos del partido"""
-
+# Mostrar los datos completos del partido
     def show(self):
         return f"""
 INFORMACIÓN DEL PARTIDO Nº {self.numero}

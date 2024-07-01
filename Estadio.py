@@ -7,7 +7,7 @@ class Estadio:
         self.capacidad = capacidad
         self.restaurantes = []
 
-    """Mostrar los datos completos del estadio"""
+# Mostrar los datos completos del estadio
 
     def show(self):
         print(f"""

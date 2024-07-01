@@ -5,6 +5,7 @@ class Restaurante:
         self.estadio = estadio
         self.productos = []
 
+# Mostrar los datos completos del restaurante
     def show(self):
         print(f"""
 INFORMACIÓN DEL RESTAURANTE

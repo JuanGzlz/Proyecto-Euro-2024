@@ -15,8 +15,10 @@ import matplotlib.pyplot as grafica
 from tabulate import tabulate
 import numpy as np
 
+# Crear la clase App para guardar todos los datos bajados en el main
 class App:
     def __init__(self):
+# Inicializar los datos
         self.estadios = []
         self.partidos = []
         self.entradas = []
@@ -27,7 +29,10 @@ class App:
         self.bebidas = []
         self.comidas = []
 
+# Buscar dentro de una lista con un algoritmo de búsqueda predeterminado
     def binary_search(self, lista_arg, min, max, x, key = lambda x: x):
+# Divide en dos la lista, para luego ir reduciendo por la mitad hasta hallar un valor paralelo al buscado
+# Lo hace dependiendo de si es menor, mayor o igual a la mitad
         if max >= min:
             mid = (max + min) // 2
             if key(lista_arg[mid]) == x:
@@ -39,7 +44,10 @@ class App:
         else:
             return -1
 
+# Ordenar una lista con un algoritmo de ordenamiento predeterminado
     def merge_sort(self, lista_orden, key = lambda x: x):
+# Divide en dos la lista, y ordena cada tramo para luego unirlas y ordenarlas un solo conjunto
+# Hace uso de dos parámetros, una lista y la propia función que ordena
         if len(lista_orden) > 1:
             mid = len(lista_orden) // 2
             left = lista_orden[:mid]
@@ -70,26 +78,27 @@ class App:
 # Función para registrar los datos del .json a objetos
     def register_data(self, teams, stadiums, matches):
 
-        """Registrar los datos del equipo en el sistema"""
+# Registrar los datos del equipo en el sistema y asignar sus atributos
         for equipo in teams:
-            """Crear el objeto Equipo y asignar sus atributos"""
             equipo = Equipo(equipo["id"], equipo["code"], equipo["name"], equipo["group"])
             self.equipos.append(equipo)
 
-        """Registrar los datos del estadio en el sistema"""
+ # Registrar los datos del estadio en el sistema y asignar sus atributos
         for estadio in stadiums:
             estadioinfo = Estadio(estadio["id"], estadio["name"], estadio["city"], estadio["capacity"])
 
+# Registrar los datos del restaurante dentro de estadio en el sistema y asignar sus atributos
             for restaurante in estadio["restaurants"]:
                 restauranteinfo = Restaurante(restaurante["name"], estadio["name"])
                 estadioinfo.restaurantes.append(restauranteinfo)
+# Registrar los datos del producto dentro de restaurante en el sistema y asignar sus atributos
                 for producto in restaurante["products"]:
                     productoinfo = Producto(producto["name"], producto["quantity"], producto["price"], producto["stock"], producto["adicional"], restaurante["name"], estadio["name"])
                     restauranteinfo.productos.append(productoinfo)
 
             self.estadios.append(estadioinfo)
 
-        """Clasificar los productos en Bebidas y Comidas"""
+# Clasificar los productos en Bebidas y Comidas sólo para la búsqueda
         for estadio1 in self.estadios:
                 for restaurante1 in estadio1.restaurantes:
                     for producto1 in restaurante1.productos:
@@ -98,9 +107,9 @@ class App:
                         else:
                             self.comidas.append(producto1)
 
-        """Registrar los datos del partido en el sistema"""
+# Registrar los datos del partido en el sistema y asignar sus atributos
         for partido in matches:
-            """Transformar los parámetros que sean listas en objetos"""
+# Transformar los parámetros que sean listas en objetos
             for equipo in self.equipos:
                 if partido["home"]["id"] == equipo.id:
                     equipo_local = equipo
@@ -110,11 +119,11 @@ class App:
             for estadio in self.estadios:
                 if partido["stadium_id"] == estadio.id:
                     estadio_partido = estadio
-            
-            """Crear el objeto Partido y asignar sus atributos"""
+
             partido = Partido(partido["id"], partido["number"], equipo_local, equipo_visitante, partido["date"], partido["group"], estadio_partido)
             self.partidos.append(partido)
 
+# Función para buscar partidos según ciertos filtros, únicamente comparando con los atributos de los objetos ya creados
     def busqueda_partidos(self):
         print(f"""
 Bienvenido/a a la búsqueda de partidos de la Eurocopa 2024""")
@@ -127,7 +136,8 @@ Seleccione un filtro...
         4. Búsqueda de los partidos en una fecha determinada
         5. Volver al menú inicial
         """)
-                
+
+# Este tipo de validaciones se usará recurrentemente a lo largo del código
             opcion = input("Ingrese el número de la opción que desea elegir: ")
             while not opcion.isnumeric() or int(opcion) not in range(1,6):
                 print("Ingreso inválido...")
@@ -140,6 +150,8 @@ Seleccione un filtro...
                     print(f"""
 ------------- {i} -------------""")
                     print(partido.show())
+
+# Validación para seguir en la función con las mismas opciones o hacer un Break y volver al inicio
                 ans1 = input("""
 ¿Quiere seguir buscando partidos? [s/n]: """)
                 while ans1 not in ["s", "n"]:
@@ -245,11 +257,12 @@ Seleccione un filtro...
             else:
                 break
 
+# Función que pide información a la persona que está en el sistema para crear el objeto Cliente y guardar nuevos atributos
     def registro_cliente(self):
         print(f"""
 Bienvenido/a al registro OFICIAL de su persona en el sistema de la Eurocopa 2024...
 """)
-        
+
         nombre = input("Ingrese su primer nombre: ").capitalize().strip()
         while nombre == "" or not nombre.isalpha():
             print("Ingreso inválido...")
@@ -293,6 +306,7 @@ Bienvenido/a al registro OFICIAL de su persona en el sistema de la Eurocopa 2024
     
         return cliente
 
+# Función que imprime los partidos disponibles para elegir uno y luego comprar las entradas del mismo
     def seleccion_partido(self):
         partidos_disponibles = []
         for partido in self.partidos:
@@ -322,6 +336,8 @@ Ingrese el número colocado encima de la información del partido que desea ver:
 """)
         return partidos_disponibles[int(opcion) - 1]
 
+# Función que imprime un mapa para visualizar los asientos y elegir la zona donde ver el partido seleccionado
+# El mapa es creado con letras y números que dependen de la capacidad que la misma función calcula
     def mapa_disponibilidad(self, juego_selec):
         mapa_estadio = []
         columnas = 10
@@ -387,6 +403,8 @@ Ingrese el asiento desde donde desee ver el partido (Ej: AA1): """).upper().stri
 """)
         return asiento_elegido
 
+# Crear una entrada con un ID aleatorio y validar que no se repita. Este servirá para verificar la asistencia al partido
+# Se verifica el tipo de entrada y aplica descuentos dependiendo de si los tiene
     def crear_entrada(self, cliente, juego_selec, tipo_entrada):
 
         id_entradas = self.tipo_entradas["General"] + self.tipo_entradas["Vip"]
@@ -407,6 +425,7 @@ Ingrese el asiento desde donde desee ver el partido (Ej: AA1): """).upper().stri
             entrada.descuento = cliente.descuento_entrada
             return entrada
 
+# Función que contiene toda la compra de la entrada y las demás funciones que validan esta
     def compra_entrada(self):
         ans = input("""
 ¿Se encuentra registrado? [s/n]: """)
@@ -422,6 +441,7 @@ Ingrese el asiento desde donde desee ver el partido (Ej: AA1): """).upper().stri
                         raise Exception
                     if self.binary_search(self.clientes, 0, len(self.clientes) - 1, dni, lambda x: x.cedula) == -1:
                         print("¡El cliente no se encuentra registrado! Su DNI no se encontró...")
+# Reconoce el error y permite intentarlo de nuevo
                         ans1 = input("""
 ¿Quiere intentarlo de nuevo? [s/n]: """)
                         while ans1 not in ["s", "n"]:
@@ -485,6 +505,7 @@ Ingrese el asiento desde donde desee ver el partido (Ej: AA1): """).upper().stri
                 entrada.precio_real()
                 print(entrada.show())
 
+# Permite la confirmación de la compra para evitar gastos directos
                 opcion1 = input("""
 ¿Quiere confirmar su compra? [s/n]: """)
                 while opcion1 not in ["s", "n"]:
@@ -507,6 +528,7 @@ Ingrese el asiento desde donde desee ver el partido (Ej: AA1): """).upper().stri
                     print("NO quedan entradas de tipo General...")
                     break
 
+# Valida la compra potencial de otra entrada
                 opcion2 = input("""
 ¿Desearía comprar una entrada más? [s/n]: """)
                 while opcion2 not in ["s", "n"]:
@@ -560,7 +582,9 @@ Ingrese el asiento desde donde desee ver el partido (Ej: AA1): """).upper().stri
                     break
         
         if len(cliente.entradas_compradas) > 0:
+# Se guarda la entrada, y se hacen todos los cálculos respecto a las entradas vendidas y evitar la repetición del asiento
             cliente.gasto_entradas()
+            self.merge_sort(self.clientes, lambda x: x.cedula)
             i = self.binary_search(self.clientes, 0, len(self.clientes) - 1, cliente.cedula, lambda x: x.cedula)
             if i == -1:
                 self.clientes.append(cliente)
@@ -571,6 +595,7 @@ MONTO FINAL: {cliente.cant_entradas}$
 ////////////////////////////////
 """)
 
+# Función que verifica si una entrada es real o si ya fue usada
     def confirmacion_asistencia(self):
         while True:
             while True:
@@ -601,7 +626,7 @@ Ingrese el ID de la entrada para verificarla y confirmar su asistencia: """))
                     print(entrada.show())
                     print("""¡Su asistencia ha sido CONFIRMADA exitosamente!
 ////////////////////////////////""")
-                    
+
                     j = self.binary_search(self.partidos, 0, len(self.entradas) - 1, entrada.partido.id, lambda x: x.id)
                     partido = self.partidos[j]
                     partido.asistencia_confirmada += 1
@@ -622,6 +647,7 @@ Ingrese el ID de la entrada para verificarla y confirmar su asistencia: """))
                 else:
                     return
 
+# Función que sirve como un menú sobre los restaurantes para evitar el exceso de información en una parte
     def info_restaurantes(self):
         print(f"""
 Bienvenido/a a los restaurantes de la Eurocopa 2024""")
@@ -649,11 +675,12 @@ Seleccione lo que quiera hacer...
 {'~' * 100}""")
                 self.compra_productos()
                 print(f"{'~' * 100}")
-                # self.salvar_archivos()
+                self.salvar_archivos()
 
             else:
                 break
 
+# Función para buscar productos según ciertos filtros, únicamente comparando con los atributos de los objetos que ya fueron bajados de la API
     def busqueda_productos(self):
         print(f"""
 Bienvenido/a a la búsqueda de productos de la Eurocopa 2024""")
@@ -937,10 +964,12 @@ Buscar según el precio (IVA incluido):
             else:
                 break
 
+# Función que contiene toda la compra de productos
     def compra_productos(self):
         validacion1 = True
         validacion2 = True
 
+# Busca el DNI ya registrado por el usuario que está usando el programa, asociándolo a uno de los clientes guardados
         while True:
             try:
                 dni = input("\nIngrese su DNI: ")
@@ -972,6 +1001,7 @@ No hay clientes con este DNI...""")
                 else:
                     return
 
+# Verifica que el cliente según su DNI tenga entradas VIP, ya que de lo contrario no podrá comprar productos
         if validacion1:
             cliente = list(filter(lambda x: x.cedula == dni, self.clientes))[0]
             if list(filter(lambda x: isinstance(x, Vip), cliente.entradas_compradas)) == []:
@@ -984,6 +1014,7 @@ No posee entradas VIP. No puede consumir productos...""")
                 if cliente.descuento_rest:
                     print("""¡Por su DNI, ha sido beneficiado con un 15(%) de descuento en la compra de productos!
 """)
+# Filtra los estadios donde está la entrada VIP
                 if len(entradas) > 1:
                     lista_ent = []
                     for ent in entradas:
@@ -1014,6 +1045,7 @@ Elija el número del estadio donde desea comprar: """))
                     ind = self.binary_search(self.estadios, 0, len(self.estadios)-1, entradas[0].estadio.nombre, lambda x: x.nombre)
                     estadio = self.estadios[ind]
 
+# Filtra los restaurantes dentro del estadio seleccionado con entrada VIP
                 if len(estadio.restaurantes) > 1:
                     while True:
                         try:
@@ -1035,6 +1067,7 @@ Elija el número del restaurante donde desea comprar: """))
                 else:
                     restaurante = estadio.restaurantes[0]
 
+# Valida si es menor de edad para evitar la compra de bebidas alcohólicas
                 productos = list(filter(lambda x: isinstance(x, Producto) and x.stock  > 0, restaurante.productos))
                 if cliente.edad < 18:
                     print("""
@@ -1057,6 +1090,7 @@ No se dispone de más productos""")
                         else:
                             productos = list(filter(lambda x: x.adicional in ["plate", "package","non-alcoholic", "alcoholic"], productos))
 
+# Filtra los productos del estadio seleccionado para proceder con la compra de uno o varios
                         while True:
                             try:
                                 print(f"""
@@ -1105,7 +1139,8 @@ TOTAL A PAGAR (IVA incluido): {compra}$""")
                             print("Ingreso inválido...")
                             opcion = input("""
 ¿Quiere confirmar su compra? [s/n]: """)
-                    
+
+# Muestra la información de compra con todos sus cálculos asociados
                         if opcion == "s":
                             print(f"""¡Su compra ha sido EXITOSA!
 
@@ -1136,6 +1171,7 @@ TOTAL: {producto_final.precio * cantidad}
                             print("Compra cancelada...")
                             break
 
+# Valida la compra potencial de otro producto
                         opcion1 = input("""
 ¿Desearía comprar otro producto? [s/n]: """)
                         while opcion1 not in ["s", "n"]:
@@ -1148,6 +1184,7 @@ TOTAL: {producto_final.precio * cantidad}
 """)
                             break
 
+# Función que grafica todas las estadísticas relacionadas al estadio
     def grafica_estadisticas(self, abscissa, ordinate, opt, title, y_label):
 
         if opt == 1:
@@ -1166,6 +1203,7 @@ TOTAL: {producto_final.precio * cantidad}
             grafica.ylabel(y_label)
             grafica.show()
 
+# Función que muestra todas las estadísticas relacionadas al estadio
     def mostrar_estadisticas(self):
         print("""
 Bienvenido/a a las estadísticas disponibles""")
@@ -1217,7 +1255,6 @@ No se han registrado clientes VIP...
                 foo = list(filter(lambda g: g.asistencia_confirmada > 0, self.partidos))
 
                 if len(foo) != 0:
-                    self.merge_sort(foo, lambda x: x.asistencia_confirmada)
 
                     print("""
                           Tabla con la asistencia a los partidos.
@@ -1229,16 +1266,16 @@ No se han registrado clientes VIP...
                         ent_general = foo[-i].estadio.capacidad[0] - foo[-i].entradas_general
                         ent_vip = foo[-i].estadio.capacidad[1] - foo[-i].entradas_vip
                         total_vendido = ent_general + ent_vip
-                        asistencia = foo[-i].asistencia_confirmada
+                        asistencia = foo[-1].asistencia_confirmada
                         relacion = asistencia / total_vendido
                         filas.append([juego, estadio, asistencia, ent_general, ent_vip, total_vendido, relacion])
 
-                    encabezados = ["Partido", "Estadio", "Asistencia", "Entradas General\n Vendidos", "Entradas VIP\n Vendidos", "Total de Entradas\n Vendidas", "Relación Asistencia/Ventas"]
+                    encabezados = ["Partido", "Estadio", "Asistencia", "Entradas General\n Vendidos", "Entradas VIP\n Vendidos", "Total de Entradas\n Vendidas", "Relación\n Asistencia/Ventas"]
                     print(tabulate(filas, encabezados, tablefmt="grid"))
                     print(""" """)
 
                     if len(foo) <= 3:
-                        self.merge_sort(foo, lambda x: x.asistencia_confirmada)
+
                         abscissa = []
                         ordinate = []
                         for i in range(1,len(foo)+1):
@@ -1248,7 +1285,7 @@ No se han registrado clientes VIP...
                             ordinate.append(asistencia_nom)
                         self.grafica_estadisticas(abscissa, ordinate, 2, "PARTIDOS CON MÁS ASISTENCIA", "ASISTENCIA")
                     else:
-                        self.merge_sort(foo, lambda x: x.asistencia_confirmada)
+
                         abscissa = []
                         ordinate = []
                         for i in range(1, 4):
@@ -1265,7 +1302,7 @@ Actualmente, no hay asistencia confirmada a los partidos...
             elif opcion == "3":
                 variable = list(filter(lambda x: x.asistencia_confirmada > 0, self.partidos))
                 if len(variable) != 0:
-                    self.merge_sort(variable, lambda x: x.asistencia_confirmada)
+
                     print(f"""
 PARTIDO CON MAYOR ASISTENCIA:{variable[-1].local.nombre} vs {variable[-1].visitante.nombre} 
 ASISTENCIA: {variable[-1].asistencia_confirmada} personas
@@ -1289,7 +1326,7 @@ Actualmente, no hay asistencia confirmada a los partidos...
             elif opcion == "4":
                 variable1 = list(filter(lambda x: len(x.asientos_tomados) > 0, self.partidos))
                 if len(variable1) != 0:
-                    self.merge_sort(variable1, lambda x: len(x.asientos_tomados))
+
                     print(f"""
 PARTIDO CON MÁS ENTRADAS VENDIDAS:{variable1[-1].local.nombre} vs {variable1[-1].visitante.nombre} 
 ENTRADAS VENDIDAS: {len(variable1[-1].asientos_tomados)}
@@ -1414,6 +1451,7 @@ COMPRA TOTAL: {len(cliente.entradas_compradas)} entradas
             else:
                 break
 
+# Función que lee los archivos .pickle ya que aquí se guarda la información
     def leer_archivos(self, teams, stadiums, matches):
         try:
             with open("equipos.pickle", "rb") as file:
@@ -1461,6 +1499,7 @@ COMPRA TOTAL: {len(cliente.entradas_compradas)} entradas
             with open("entradas_verificadas.pickle", "wb") as file:
                 pickle.dump(self.entradas_verificadas, file)
 
+# Función que guarda los datos ingresados en los archivos .pickle para usarlos en cada inicio del programa
     def salvar_archivos(self):
         with open("equipos.pickle", "wb") as file_1:
             pickle.dump(self.equipos, file_1)
@@ -1477,9 +1516,10 @@ COMPRA TOTAL: {len(cliente.entradas_compradas)} entradas
         with open("partidos.pickle", "wb") as file_7:
             pickle.dump(self.partidos, file_7)
 
+# Función que cumple el rol de menú principal y permite elegir una opción distinta donde cada una contiene una función del programa, además que inicia la lectura de los archivos .pickle con información guardada
     def menu(self, teams, stadiums, matches):
         self.register_data(teams, stadiums, matches)
-        # self.leer_archivos(teams, stadiums, matches)
+        self.leer_archivos(teams, stadiums, matches)
         
         print(f"""
 --- BIENVENIDO/A A LA EUROCOPA 2024 ---""")
@@ -1492,11 +1532,12 @@ Ingrese una opción...
         3. Confirmación de asistencia
         4. Acerca de los restaurantes
         5. Revisión de estadísticas
-        6. Guardar y salir
+        6. Cargar datos de API
+        7. Guardar y salir
         """)
                 
             opcion = input("Ingrese el número de la opción que desea elegir: ")
-            while not opcion.isnumeric() or int(opcion) not in range(1,7):
+            while not opcion.isnumeric() or int(opcion) not in range(1,8):
                 print("Ingreso inválido...")
                 opcion = input("Ingrese el número de la opción que desea elegir: ")
 
@@ -1511,14 +1552,14 @@ Ingrese una opción...
 {'~' * 100}""")
                 self.compra_entrada()
                 print(f"{'~' * 100}")
-                # self.salvar_archivos()
+                self.salvar_archivos()
 
             elif opcion == "3":
                 print(f"""
 {'~' * 100}""")
                 self.confirmacion_asistencia()
                 print(f"{'~' * 100}")
-                # self.salvar_archivos()
+                self.salvar_archivos()
 
             elif opcion == "4":
                 print(f"""
@@ -1532,13 +1573,42 @@ Ingrese una opción...
                 self.mostrar_estadisticas()
                 print(f"{'~' * 100}")
 
+            elif opcion == "6":
+                print(f"""
+{'~' * 100}""")
+                ans1 = input("""
+¿Quiere cargar los datos a su estado inicial? [s/n]: """)
+                while ans1 not in ["s", "n"]:
+                    print("Ingreso inválido...")
+                    ans1 = input("¿Quiere cargar los datos a su estado inicial? [s/n]: ")
+                
+                if ans1 == "s":
+                    self.estadios = []
+                    self.partidos = []
+                    self.entradas = []
+                    self.tipo_entradas = {"General": [], "Vip": []}
+                    self.entradas_verificadas = []
+                    self.equipos = []
+                    self.clientes = []
+                    self.bebidas = []
+                    self.comidas = []
+                    self.register_data(teams, stadiums, matches)
+                    print("""
+Los datos fueron cargados correctamente...
+El programa está en su estado inicial...
+""")
+                    print(f"{'~' * 100}")
+                else:
+                    print("""
+Carga cancelada...""")
+
             else:
                 print("""
 Cerrando sesión...
 Vuelva por más novedades del torneo internacional más competitivo...
 ¡LA EUROCOPA 2024!
 """)
-                # self.salvar_archivos()
+                self.salvar_archivos()
                 break
 
             ans = input("""
@@ -1554,5 +1624,5 @@ Cerrando sesión...
 Vuelva por más novedades del torneo internacional más competitivo...
 ¡LA EUROCOPA 2024!
 """)
-                # self.salvar_archivos()
+                self.salvar_archivos()
                 break

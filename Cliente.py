@@ -17,9 +17,9 @@ class Cliente:
         self.productos_comprados = []
         self.entradas_compradas = []
 
-    """Determinar si la cédula es un número vampiro para reconocer el descuento, debiendo aplicar permutaciones"""
+# Determinar si la cédula es un número vampiro para reconocer el descuento, debiendo aplicar permutaciones
     def permutacion(self, cedula):
-        """Genera una lista con las permutaciones de los digitos de la cédula"""
+# Genera una lista con las permutaciones de los digitos de la cédula
         
         if len(cedula) == 1:
             return [cedula]
@@ -31,7 +31,7 @@ class Cliente:
         return permutaciones
     
     def num_vampiro(self):
-        """Determinar si la cédula es un número vampiro"""
+# Determinar si la cédula es un número vampiro
 
         if len(self.cedula) % 2 != 0:
             return False
@@ -55,7 +55,7 @@ class Cliente:
         return False
     
     def num_perfecto(self):
-        """Determinar si la cédula es un número perfecto"""
+# Determinar si la cédula es un número perfecto
 
         suma = 0
         for i in range(1, int(self.cedula)):
@@ -65,6 +65,7 @@ class Cliente:
             return True
         return False
     
+# Con las funciones anteriores, determinar en una sola los descuentos del cliente
     def descuentos(self):
         if self.num_vampiro():
             self.descuento_entrada = True
@@ -78,6 +79,7 @@ Usted ha obtenido el beneficio de un 15(%) de descuento en la compra de producto
 """)
 
     def gasto_entradas(self):
+# Calcular lo gastado en entradas por el cliente
         vip_entradas = 0
         general_entradas = 0
         for entrada in self.entradas_compradas:
@@ -90,6 +92,7 @@ Usted ha obtenido el beneficio de un 15(%) de descuento en la compra de producto
         self.cant_entradas = general_entradas + vip_entradas
 
     def gasto_productos(self):
+# Calcular lo gastado en productos por el cliente
         producto_gasto = 0
         for producto in self.productos_comprados:
             producto_gasto += producto.precio
@@ -97,7 +100,7 @@ Usted ha obtenido el beneficio de un 15(%) de descuento en la compra de producto
         if self.descuento_rest:
             self.cant_productos *= 0.85
 
-    """Mostrar los datos completos del cliente"""
+# Mostrar los datos completos del cliente
     def show(self):
         print(f"""
 INFORMACIÓN DEL CLIENTE

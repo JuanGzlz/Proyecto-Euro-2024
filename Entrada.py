@@ -11,6 +11,7 @@ class Entrada:
         self.impuestos = 0.16
         self.total = 0
 
+# Muestra la información de la entrada
     def show(self):
         if self.descuento:
             return f"""
