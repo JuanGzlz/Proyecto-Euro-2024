@@ -92,7 +92,7 @@ Usted ha obtenido el beneficio de un 15(%) de descuento en la compra de producto
     def gasto_productos(self):
         producto_gasto = 0
         for producto in self.productos_comprados:
-            producto_gasto += producto.price
+            producto_gasto += producto.precio
         self.cant_productos = producto_gasto
         if self.descuento_rest:
             self.cant_productos *= 0.85

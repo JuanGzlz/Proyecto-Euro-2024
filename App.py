@@ -67,7 +67,7 @@ class App:
                 j += 1
                 k += 1
 
-    """Función para registrar los datos del .json a objetos"""
+# Función para registrar los datos del .json a objetos
     def register_data(self, teams, stadiums, matches):
 
         """Registrar los datos del equipo en el sistema"""
@@ -944,25 +944,209 @@ Buscar según el precio (IVA incluido):
         while True:
             try:
                 dni = input("\nIngrese su DNI: ")
-                if dni =="" or not dni.isnumeric():
+                if dni == "" or not dni.isnumeric():
                     raise Exception
                 elif list(filter(lambda x: x.cedula == dni, self.clientes)) == []:
                     print("""
 No hay clientes con este DNI...""")
                     validacion1 = False
+                    ans1 = input("""
+¿Quiere intentarlo de nuevo? [s/n]: """)
+                    while ans1 not in ["s", "n"]:
+                        print("Ingreso inválido...")
+                        ans1 = input("¿Quiere intentarlo de nuevo? [s/n]: ")
+                    if ans1 == "s":
+                        continue
+                    else:
+                        return
                 break
             except:
                 print("Ingreso inválido...")
+                ans1 = input("""
+¿Quiere intentarlo de nuevo? [s/n]: """)
+                while ans1 not in ["s", "n"]:
+                    print("Ingreso inválido...")
+                    ans1 = input("¿Quiere intentarlo de nuevo? [s/n]: ")
+                if ans1 == "s":
+                    continue
+                else:
+                    return
 
         if validacion1:
-            cliente = list(filter(lambda x: x.cedula == dni, self.clients))[0]
+            cliente = list(filter(lambda x: x.cedula == dni, self.clientes))[0]
             if list(filter(lambda x: isinstance(x, Vip), cliente.entradas_compradas)) == []:
                 print("""
 No posee entradas VIP. No puede consumir productos...""")
                 validacion2 = False
                 
             if validacion2:
-                
+                entradas = list(filter(lambda x: isinstance(x, Vip), cliente.entradas_compradas))
+                if cliente.descuento_rest:
+                    print("""¡Por su DNI, ha sido beneficiado con un 15(%) de descuento en la compra de productos!
+""")
+                if len(entradas) > 1:
+                    lista_ent = []
+                    for ent in entradas:
+                        estadio_selec = ent.estadio
+                        if estadio_selec not in lista_ent:
+                            lista_ent.append(estadio_selec)
+
+                    while True:
+                        try:
+                            print("""
+ESTADIOS donde compró entrada: """)
+                            for i, ent1 in enumerate(lista_ent):
+                                print(f"""
+{i+1}. {ent1.nombre}""")
+                            opc = int(input("""
+Elija el número del estadio donde desea comprar: """))
+                            
+                            if opc not in range(1, len(lista_ent) + 1):
+                                raise Exception
+                            break
+                        except:
+                            print("Ingreso inválido...")
+                    self.merge_sort(self.estadios, lambda x: x.nombre)
+                    ind = self.binary_search(self.estadios, 0, len(self.estadios) - 1, lista_ent[opc - 1].nombre, lambda x: x.nombre)
+                    estadio = self.estadios[ind]
+                else:
+                    self.merge_sort(self.estadios, lambda x: x.nombre)
+                    ind = self.binary_search(self.estadios, 0, len(self.estadios)-1, entradas[0].estadio.nombre, lambda x: x.nombre)
+                    estadio = self.estadios[ind]
+
+                if len(estadio.restaurantes) > 1:
+                    while True:
+                        try:
+                            print(f"""
+RESTAURANTES del estadio: {estadio.nombre}
+""")
+                            for i, restaurante in enumerate(estadio.restaurantes):
+                                print(f"""{i+1}. {restaurante.nombre}""")
+                            opc1 = int(input("""
+
+Elija el número del restaurante donde desea comprar: """))
+                            if opc1 not in range(1, len(estadio.restaurantes) + 1):
+                                raise Exception
+                            break
+                        except:
+                            print("Ingreso inválido...")
+
+                    restaurante = estadio.restaurantes[opc1 - 1]
+                else:
+                    restaurante = estadio.restaurantes[0]
+
+                productos = list(filter(lambda x: isinstance(x, Producto) and x.stock  > 0, restaurante.productos))
+                if cliente.edad < 18:
+                    print("""
+No puede comprar bebidas alcohólicas. Usted es menor de edad...""")
+                    productos = list(filter(lambda x: x.adicional in ["non-alcoholic", "plate", "package"], productos))
+                else:
+                    productos = list(filter(lambda x: x.adicional in ["plate", "package","non-alcoholic", "alcoholic"], productos))
+    
+                validacion3 = True
+                if len(productos) == 0:
+                    print("""
+No se dispone de más productos""")
+                    validacion3 = False
+
+                if validacion3:
+                    while True:
+                        productos = list(filter(lambda x: isinstance(x, Producto) and x.stock  > 0, restaurante.productos))
+                        if cliente.edad < 18:
+                            productos = list(filter(lambda x: x.adicional in ["plate", "package", "non-alcoholic"], productos))
+                        else:
+                            productos = list(filter(lambda x: x.adicional in ["plate", "package","non-alcoholic", "alcoholic"], productos))
+
+                        while True:
+                            try:
+                                print(f"""
+PRODUCTOS del restaurante: {restaurante.nombre}""")
+                                j = 0
+                                for prod in productos:
+                                    print(f"""
+------------- {j+1} -------------""")
+                                    print(prod.show())
+                                    j += 1
+                                prod_elec = int(input("""
+Elija el número del producto que desea comprar: """))
+                                if prod_elec not in range(1, j + 1):
+                                    raise Exception
+                                break
+                            except:
+                                print("Ingreso inválido...")
+
+                        productos_def = productos
+                        producto_def = productos_def[prod_elec - 1]
+                        self.merge_sort(restaurante.productos, lambda x: x.nombre)
+                        index = self.binary_search(restaurante.productos, 0, len(restaurante.productos) - 1, producto_def.nombre, lambda x: x.nombre)
+                        producto_final = restaurante.productos[index]
+
+                        while True: 
+                            try:
+                                cantidad = int(input("Ingrese la cantidad que desee comprar de este producto: "))
+                                if cantidad not in range(1, producto_final.stock + 1):
+                                    raise Exception
+                                break
+                            except:
+                                print("Ingreso inválido...")
+
+                        if cliente.descuento_rest:
+                            compra = (producto_final.precio * cantidad) - ((producto_final.precio / 1.16) * cantidad * 0.15)
+                            print(f"""
+TOTAL A PAGAR (IVA incluido): {compra}$""")
+                        else:
+                            compra = producto_final.precio * cantidad
+                            print(f"""
+TOTAL A PAGAR (IVA incluido): {compra}$""")
+                        
+                        opcion = input("""
+¿Quiere confirmar su compra? [s/n]: """)
+                        while opcion not in ["s", "n"]:
+                            print("Ingreso inválido...")
+                            opcion = input("""
+¿Quiere confirmar su compra? [s/n]: """)
+                    
+                        if opcion == "s":
+                            print(f"""¡Su compra ha sido EXITOSA!
+
+INFORMACIÓN DE COMPRA
+=====================
+PRODUCTO: {producto_final.nombre}
+PRECIO (sin IVA): {(producto_final.precio) / 1.16}$
+CANTIDAD COMPRADA: {cantidad}
+---------------------
+SUBTOTAL: {(producto_final.precio / 1.16) * cantidad}$
+IMPUESTOS (16%): {(producto_final.precio / 1.16) * cantidad * 0.16}$""")
+                            if cliente.descuento_rest:
+                                print(f"""DESCUENTO (15%): {(producto_final.precio / 1.16) * cantidad * 0.15}$
+TOTAL: {(producto_final.precio * cantidad) - ((producto_final.precio / 1.16) * cantidad * 0.15)}
+""")
+                            else:
+                                print(f"""DESCUENTO (15%): 0$
+TOTAL: {producto_final.precio * cantidad}
+""")
+
+                            for i in range(cantidad):
+                                cliente.productos_comprados.append(producto_final)
+                            producto_final.ventas_stock(cantidad)
+                            producto_final.dinero_gastado()
+                            cliente.gasto_productos()
+
+                        else:
+                            print("Compra cancelada...")
+                            break
+
+                        opcion1 = input("""
+¿Desearía comprar otro producto? [s/n]: """)
+                        while opcion1 not in ["s", "n"]:
+                            print("Ingreso inválido...")
+                            opcion1 = input("""
+¿Desearía comprar una entrada más? [s/n]: """)
+                    
+                        if opcion1 == "n":
+                            print("""¡Gracias por haber comprado en EUROCOPA 2024!
+""")
+                            break
 
     def grafica_estadisticas(self, abscissa, ordinate, opt, title, y_label):
 
@@ -1327,12 +1511,14 @@ Ingrese una opción...
 {'~' * 100}""")
                 self.compra_entrada()
                 print(f"{'~' * 100}")
+                # self.salvar_archivos()
 
             elif opcion == "3":
                 print(f"""
 {'~' * 100}""")
                 self.confirmacion_asistencia()
                 print(f"{'~' * 100}")
+                # self.salvar_archivos()
 
             elif opcion == "4":
                 print(f"""
